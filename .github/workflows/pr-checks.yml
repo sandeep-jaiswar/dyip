@@ -156,7 +156,7 @@ jobs:
           echo "=== Checking APK sizes ==="
           for apk in build/app/outputs/flutter-apk/*.apk; do
             if [ -f "$apk" ]; then
-              size=$(stat -f%z "$apk" 2>/dev/null || stat -c%s "$apk")
+              size=$(stat -c%s "$apk")
               size_mb=$((size / 1048576))
               echo "$(basename $apk): ${size_mb}MB"
               
