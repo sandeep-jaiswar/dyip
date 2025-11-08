@@ -42,13 +42,19 @@ jobs:
       - name: Generate changelog
         id: changelog
         run: |
-          # Get the previous tag
-          PREV_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+          # Get all tags sorted by version (newest first)
+          TAGS=($(git tag --sort=-version:refname))
           
-          if [ -z "$PREV_TAG" ]; then
+          if [ ${#TAGS[@]} -eq 0 ]; then
             echo "First release - showing all commits"
             CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          elif [ ${#TAGS[@]} -eq 1 ]; then
+            # Only current tag exists
+            PREV_TAG=""
+            CHANGELOG=$(git log ${TAGS[0]}^..HEAD --pretty=format:"- %s (%h)" --no-merges 2>/dev/null || git log --pretty=format:"- %s (%h)" --no-merges)
           else
+            # Compare with previous tag
+            PREV_TAG=${TAGS[1]}
             echo "Changes since $PREV_TAG"
             CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
           fi
@@ -63,12 +69,10 @@ jobs:
       
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: ncipollo/release-action@v1
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          release_name: Release v${{ steps.get_version.outputs.version }}
+          tag: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
           body: |
             ## What's Changed
             
@@ -79,6 +83,7 @@ jobs:
             - See build artifacts for additional outputs
           draft: false
           prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   build-release-android:
     name: Build Release Android APKs
@@ -134,7 +139,9 @@ jobs:
         run: |
           VERSION="${{ needs.create-release.outputs.version }}"
           BUILD_NUMBER=$(date +%s)
-          sed -i "s/^version:.*/version: ${VERSION}+${BUILD_NUMBER}/" pubspec.yaml
+          # Use -i.bak for portability; delete backup after
+          sed -i.bak "s/^version:.*/version: ${VERSION}+${BUILD_NUMBER}/" pubspec.yaml
+          rm pubspec.yaml.bak
           echo "Updated version to ${VERSION}+${BUILD_NUMBER}"
       
       - name: Build Android App Bundle (AAB)
@@ -151,17 +158,32 @@ jobs:
           VERSION="${{ needs.create-release.outputs.version }}"
           cd build/app/outputs/flutter-apk
           
-          # Rename split APKs
+          # Rename split APKs with validation
           for apk in app-*-release.apk; do
             if [ -f "$apk" ]; then
-              arch=$(echo $apk | sed 's/app-\(.*\)-release.apk/\1/')
+              # Extract arch, ensuring it matches expected pattern
+              arch=$(echo "$apk" | sed -E 's/app-([a-z0-9]+)-release\.apk/\1/')
+              if [ -z "$arch" ] || [ "$arch" = "$apk" ]; then
+                echo "Warning: Failed to parse arch from $apk"
+                continue
+              fi
               mv "$apk" "dyip-v${VERSION}-${arch}.apk"
+              echo "Renamed: $apk → dyip-v${VERSION}-${arch}.apk"
             fi
           done
           
-          # Rename fat APK
+          # Rename fat APK with explicit check
           if [ -f "app-release.apk" ]; then
             mv "app-release.apk" "dyip-v${VERSION}-universal.apk"
+            echo "Renamed: app-release.apk → dyip-v${VERSION}-universal.apk"
+          else
+            echo "Warning: app-release.apk not found"
+          fi
+          
+          # Verify outputs exist
+          if ! ls dyip-v${VERSION}-*.apk >/dev/null 2>&1; then
+            echo "Error: No APKs found after renaming" >&2
+            exit 1
           fi
           
           ls -lh
