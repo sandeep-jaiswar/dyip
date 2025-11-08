@@ -1,0 +1,248 @@
+name: PR Checks
+
+on:
+  push:
+    branches: [production, development]
+  pull_request:
+    branches: [production, development]
+
+# Cancel in-progress runs for the same workflow + PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Code quality and testing job
+  code-quality:
+    name: Code Quality & Tests (Flutter ${{ matrix.flutter-channel }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        flutter-channel: ['stable', 'beta']
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ matrix.flutter-channel }}
+          cache: true
+          cache-key: flutter-${{ matrix.flutter-channel }}-${{ hashFiles('**/pubspec.lock') }}
+          cache-path: ${{ runner.tool_cache }}/flutter-${{ matrix.flutter-channel }}
+      
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.PUB_CACHE }}
+            ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            pub-${{ runner.os }}-
+      
+      - name: Get Flutter dependencies
+        run: flutter pub get
+      
+      - name: Verify Flutter installation
+        run: |
+          flutter --version
+          flutter doctor -v
+      
+      - name: Run static analysis
+        run: flutter analyze --fatal-infos
+      
+      - name: Check code formatting
+        run: dart format --set-exit-if-changed --line-length 80 lib test
+      
+      - name: Run tests with coverage
+        run: flutter test --coverage --reporter expanded
+      
+      - name: Upload coverage to Codecov
+        if: matrix.flutter-channel == 'stable'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: flutter-${{ matrix.flutter-channel }}
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+      
+      - name: Upload coverage to Coveralls
+        if: matrix.flutter-channel == 'stable'
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ./coverage/lcov.info
+          flag-name: flutter-${{ matrix.flutter-channel }}
+          parallel: false
+        continue-on-error: true
+
+  # Android build job
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    needs: code-quality
+    timeout-minutes: 20
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          cache-key: flutter-stable-${{ hashFiles('**/pubspec.lock') }}
+      
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.PUB_CACHE }}
+            ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            pub-${{ runner.os }}-
+      
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            android/.gradle
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+      
+      - name: Get Flutter dependencies
+        run: flutter pub get
+      
+      - name: Build Android APK (Debug)
+        run: flutter build apk --debug --split-per-abi
+      
+      - name: Build Android APK (Release)
+        run: flutter build apk --release --split-per-abi
+      
+      - name: Validate build outputs
+        run: |
+          echo "=== Debug APKs ==="
+          ls -lh build/app/outputs/flutter-apk/*debug*.apk || echo "No debug APKs found"
+          
+          echo "=== Release APKs ==="
+          ls -lh build/app/outputs/flutter-apk/*release*.apk || echo "No release APKs found"
+          
+          echo "=== Checking APK sizes ==="
+          for apk in build/app/outputs/flutter-apk/*.apk; do
+            if [ -f "$apk" ]; then
+              size=$(stat -c%s "$apk")
+              size_mb=$((size / 1048576))
+              echo "$(basename $apk): ${size_mb}MB"
+              
+              # Warn if APK is larger than 50MB
+              if [ $size_mb -gt 50 ]; then
+                echo "::warning::APK $(basename $apk) is larger than 50MB"
+              fi
+            fi
+          done
+      
+      - name: Upload Debug APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-apks
+          path: build/app/outputs/flutter-apk/*debug*.apk
+          retention-days: 7
+      
+      - name: Upload Release APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-apks
+          path: build/app/outputs/flutter-apk/*release*.apk
+          retention-days: 30
+
+  # iOS build job (commented out, requires macOS runner)
+  # Uncomment and configure when ready to use macOS runners
+  # build-ios:
+  #   name: Build iOS App
+  #   runs-on: macos-latest
+  #   needs: code-quality
+  #   timeout-minutes: 30
+  #   
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     
+  #     - name: Setup Flutter
+  #       uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: 'stable'
+  #         cache: true
+  #     
+  #     - name: Get Flutter dependencies
+  #       run: flutter pub get
+  #     
+  #     - name: Build iOS app (Debug)
+  #       run: flutter build ios --debug --no-codesign
+  #     
+  #     - name: Build iOS app (Release)
+  #       run: flutter build ios --release --no-codesign
+  #     
+  #     - name: Archive iOS build
+  #       run: |
+  #         cd build/ios/iphoneos
+  #         tar -czf ios-build.tar.gz Runner.app
+  #     
+  #     - name: Upload iOS build
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: ios-build
+  #         path: build/ios/iphoneos/ios-build.tar.gz
+  #         retention-days: 7
+
+  # Summary job
+  workflow-summary:
+    name: Workflow Summary
+    runs-on: ubuntu-latest
+    needs: [code-quality, build-android]
+    if: always()
+    
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Check workflow status
+        run: |
+          echo "## Workflow Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Code Quality: ${{ needs.code-quality.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Android Build: ${{ needs.build-android.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.code-quality.result }}" == "success" ] && [ "${{ needs.build-android.result }}" == "success" ]; then
+            echo "✅ All checks passed!" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          else
+            echo "❌ Some checks failed. Please review the logs above." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
