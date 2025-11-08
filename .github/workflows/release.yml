@@ -1,0 +1,207 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+      
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get the previous tag
+          PREV_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+          
+          if [ -z "$PREV_TAG" ]; then
+            echo "First release - showing all commits"
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+          else
+            echo "Changes since $PREV_TAG"
+            CHANGELOG=$(git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          
+          # Save changelog to file
+          echo "$CHANGELOG" > CHANGELOG.txt
+          
+          # Also set as output (with escaped newlines)
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          release_name: Release v${{ steps.get_version.outputs.version }}
+          body: |
+            ## What's Changed
+            
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ## Downloads
+            - Android APKs are available as release assets below
+            - See build artifacts for additional outputs
+          draft: false
+          prerelease: false
+
+  build-release-android:
+    name: Build Release Android APKs
+    runs-on: ubuntu-latest
+    needs: create-release
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.PUB_CACHE }}
+            ~/.pub-cache
+          key: pub-release-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            pub-release-${{ runner.os }}-
+      
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            android/.gradle
+          key: gradle-release-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-release-${{ runner.os }}-
+      
+      - name: Get Flutter dependencies
+        run: flutter pub get
+      
+      - name: Update version in pubspec.yaml
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          BUILD_NUMBER=$(date +%s)
+          sed -i "s/^version:.*/version: ${VERSION}+${BUILD_NUMBER}/" pubspec.yaml
+          echo "Updated version to ${VERSION}+${BUILD_NUMBER}"
+      
+      - name: Build Android App Bundle (AAB)
+        run: flutter build appbundle --release
+      
+      - name: Build Android APK (Release)
+        run: flutter build apk --release --split-per-abi
+      
+      - name: Build Android APK (Fat APK)
+        run: flutter build apk --release
+      
+      - name: Rename APKs with version
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          cd build/app/outputs/flutter-apk
+          
+          # Rename split APKs
+          for apk in app-*-release.apk; do
+            if [ -f "$apk" ]; then
+              arch=$(echo $apk | sed 's/app-\(.*\)-release.apk/\1/')
+              mv "$apk" "dyip-v${VERSION}-${arch}.apk"
+            fi
+          done
+          
+          # Rename fat APK
+          if [ -f "app-release.apk" ]; then
+            mv "app-release.apk" "dyip-v${VERSION}-universal.apk"
+          fi
+          
+          ls -lh
+      
+      - name: Upload APKs to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.create-release.outputs.version }}
+          files: |
+            build/app/outputs/flutter-apk/dyip-*.apk
+            build/app/outputs/bundle/release/app-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-builds-v${{ needs.create-release.outputs.version }}
+          path: |
+            build/app/outputs/flutter-apk/*.apk
+            build/app/outputs/bundle/release/*.aab
+          retention-days: 90
+
+  # Optional: Deploy to Firebase App Distribution
+  # Uncomment and configure when ready
+  # deploy-firebase:
+  #   name: Deploy to Firebase App Distribution
+  #   runs-on: ubuntu-latest
+  #   needs: build-release-android
+  #   if: success()
+  #   
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     
+  #     - name: Download artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: release-builds-v${{ needs.create-release.outputs.version }}
+  #         path: ./builds
+  #     
+  #     - name: Upload to Firebase App Distribution
+  #       uses: wzieba/Firebase-Distribution-Github-Action@v1
+  #       with:
+  #         appId: ${{ secrets.FIREBASE_APP_ID }}
+  #         serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+  #         groups: testers
+  #         file: ./builds/dyip-universal.apk
+  #         releaseNotes: "Release v${{ needs.create-release.outputs.version }}"
