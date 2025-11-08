@@ -62,7 +62,7 @@ jobs:
         run: flutter analyze --fatal-infos
       
       - name: Check code formatting
-        run: flutter format --set-exit-if-changed --line-length 80 lib test
+        run: dart format --set-exit-if-changed --line-length 80 lib test
       
       - name: Run tests with coverage
         run: flutter test --coverage --reporter expanded
