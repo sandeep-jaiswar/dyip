@@ -186,7 +186,7 @@ Common environment variables used in workflows:
 
 | Workflow | Trigger | Branches |
 |----------|---------|----------|
-| PR Checks | push, pull_request | main, develop |
+| PR Checks | push, pull_request | production, development |
 | Release | tag (v*.*.*), manual | all |
 
 ## Job Dependencies

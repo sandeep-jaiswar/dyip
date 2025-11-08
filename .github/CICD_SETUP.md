@@ -15,8 +15,8 @@ The CI/CD pipeline consists of two main workflows:
 **Purpose**: Validates code quality, runs tests, and builds the app for every push and pull request.
 
 **Triggers**:
-- Push to `main` or `develop` branches
-- Pull requests targeting `main` or `develop` branches
+- Push to `production` or `development` branches
+- Pull requests targeting `production` or `development` branches
 
 **Jobs**:
 
@@ -101,10 +101,10 @@ If using Firebase App Distribution:
 
 ### 2. Branch Protection Rules
 
-Recommended settings for `main` and `develop` branches:
+Recommended settings for `production` and `development` branches:
 
 1. Go to Settings → Branches → Add rule
-2. Branch name pattern: `main` (repeat for `develop`)
+2. Branch name pattern: `production` (repeat for `development`)
 3. Enable:
    - ✅ Require a pull request before merging
    - ✅ Require status checks to pass before merging

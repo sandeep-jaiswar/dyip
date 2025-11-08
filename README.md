@@ -2,8 +2,8 @@
 
 [![PR Checks](https://github.com/sandeep-jaiswar/dyip/actions/workflows/pr-checks.yml/badge.svg)](https://github.com/sandeep-jaiswar/dyip/actions/workflows/pr-checks.yml)
 [![Release Build](https://github.com/sandeep-jaiswar/dyip/actions/workflows/release.yml/badge.svg)](https://github.com/sandeep-jaiswar/dyip/actions/workflows/release.yml)
-[![codecov](https://codecov.io/gh/sandeep-jaiswar/dyip/branch/main/graph/badge.svg)](https://codecov.io/gh/sandeep-jaiswar/dyip)
-[![Coverage Status](https://coveralls.io/repos/github/sandeep-jaiswar/dyip/badge.svg?branch=main)](https://coveralls.io/github/sandeep-jaiswar/dyip?branch=main)
+[![codecov](https://codecov.io/gh/sandeep-jaiswar/dyip/branch/production/graph/badge.svg)](https://codecov.io/gh/sandeep-jaiswar/dyip)
+[![Coverage Status](https://coveralls.io/repos/github/sandeep-jaiswar/dyip/badge.svg?branch=production)](https://coveralls.io/github/sandeep-jaiswar/dyip?branch=production)
 
 A new Flutter project with production-grade CI/CD pipeline.
 
@@ -20,7 +20,7 @@ A new Flutter project with production-grade CI/CD pipeline.
 This project uses GitHub Actions for continuous integration and deployment:
 
 ### PR Checks Workflow
-- **Triggers**: Push to `main`/`develop` branches, Pull requests
+- **Triggers**: Push to `production`/`development` branches, Pull requests
 - **Jobs**:
   - Code quality checks (static analysis, formatting)
   - Automated testing with coverage reporting
@@ -136,7 +136,7 @@ All PRs must pass the automated CI checks before merging.
 
 ## Branch Protection
 
-The `main` and `develop` branches are protected and require:
+The `production` and `development` branches are protected and require:
 - ✅ All CI checks to pass
 - ✅ Code review approval
 - ✅ Up-to-date with base branch

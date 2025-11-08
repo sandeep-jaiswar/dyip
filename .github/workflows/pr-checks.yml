@@ -2,9 +2,9 @@ name: PR Checks
 
 on:
   push:
-    branches: [main, develop]
+    branches: [production, development]
   pull_request:
-    branches: [main, develop]
+    branches: [production, development]
 
 # Cancel in-progress runs for the same workflow + PR
 concurrency:
