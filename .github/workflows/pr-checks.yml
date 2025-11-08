@@ -18,6 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+    
     strategy:
       fail-fast: false
       matrix:
@@ -88,6 +93,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: code-quality
     timeout-minutes: 20
+    
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout repository
@@ -218,6 +226,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [code-quality, build-android]
     if: always()
+    
+    permissions:
+      contents: read
     
     steps:
       - name: Check workflow status
