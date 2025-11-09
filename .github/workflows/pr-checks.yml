@@ -148,6 +148,15 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
       
+      - name: Create production environment file
+        run: |
+          # Create a minimal .env file for building
+          # Uses default test values since we don't have production secrets in CI
+          echo "FIREBASE_PROJECT_ID=test-project" > .env
+          echo "FIREBASE_API_KEY_ANDROID=test-key" >> .env
+          echo "FIREBASE_APP_ID_ANDROID=1:123:android:test" >> .env
+          echo "FIREBASE_MESSAGING_SENDER_ID=123" >> .env
+      
       - name: Build Android APK (Debug)
         run: flutter build apk --debug --split-per-abi
       
