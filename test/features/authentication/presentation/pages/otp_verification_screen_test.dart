@@ -6,7 +6,6 @@ import 'package:dyip/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:dyip/features/authentication/presentation/bloc/auth_event.dart';
 import 'package:dyip/features/authentication/presentation/bloc/auth_state.dart';
 import 'package:dyip/features/authentication/presentation/pages/otp_verification_screen.dart';
-import 'package:dyip/features/authentication/domain/entities/user.dart';
 
 class MockAuthBloc extends Mock implements AuthBloc {}
 
