@@ -1,4 +1,4 @@
-package com.example.dyip
+package com.jspl.dyip
 
 import io.flutter.embedding.android.FlutterActivity
 

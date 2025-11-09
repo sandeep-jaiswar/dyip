@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:dyip/injection.dart';
+import 'package:dyip/firebase_options.dart';
 import 'package:dyip/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:dyip/features/authentication/presentation/bloc/auth_event.dart';
 import 'package:dyip/features/authentication/presentation/bloc/auth_state.dart';
@@ -10,7 +12,13 @@ import 'package:dyip/features/authentication/presentation/pages/home_screen.dart
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
