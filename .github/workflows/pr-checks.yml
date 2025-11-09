@@ -53,6 +53,15 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
       
+      - name: Create test environment file
+        run: |
+          # Create a minimal .env file for testing
+          # Tests don't need real Firebase credentials
+          echo "FIREBASE_PROJECT_ID=test-project" > .env
+          echo "FIREBASE_API_KEY_ANDROID=test-key" >> .env
+          echo "FIREBASE_APP_ID_ANDROID=1:123:android:test" >> .env
+          echo "FIREBASE_MESSAGING_SENDER_ID=123" >> .env
+      
       - name: Verify Flutter installation
         run: |
           flutter --version

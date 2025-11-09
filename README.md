@@ -88,14 +88,23 @@ flutter pub get
    This will:
    - Create a Firebase project or select existing one
    - Register your Flutter apps (iOS/Android)
-   - Generate `lib/firebase_options.dart` with your configuration
+   - Generate Firebase configuration files
    
-   e. For Android, download `google-services.json`:
+   e. **Set up environment variables** (for sensitive configuration):
+      - Copy `.env.example` to `.env`
+      ```bash
+      cp .env.example .env
+      ```
+      - Fill in your Firebase credentials from Firebase Console
+      - The `.env` file is gitignored and won't be committed
+      - For CI/CD, configure secrets in GitHub repository settings
+   
+   f. For Android, download `google-services.json`:
       - Go to Firebase Console → Project Settings → Your Android App
       - Download `google-services.json`
       - Place it in `android/app/` directory
    
-   f. For iOS, download `GoogleService-Info.plist`:
+   g. For iOS, download `GoogleService-Info.plist`:
       - Go to Firebase Console → Project Settings → Your iOS App
       - Download `GoogleService-Info.plist`
       - Place it in `ios/Runner/` directory using Xcode
@@ -104,6 +113,8 @@ flutter pub get
 ```bash
 flutter run
 ```
+
+**Note for Testing/CI:** The app will work without a `.env` file using default test values. For production deployment, ensure proper Firebase credentials are configured via environment variables.
 
 ### Firebase Setup Notes
 

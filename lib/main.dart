@@ -13,8 +13,13 @@ import 'package:dyip/features/authentication/presentation/pages/home_screen.dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Load environment variables
-  await dotenv.load(fileName: ".env");
+  // Load environment variables (optional for tests)
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    // .env file not found - this is expected in test environment
+    // Firebase will use default/empty values
+  }
   
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
