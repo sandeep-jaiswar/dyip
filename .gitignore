@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase configuration (should be generated via FlutterFire CLI)
+# Uncomment the line below to ignore firebase_options.dart if using environment-specific configs
+# /lib/firebase_options.dart
+
+# Firebase project files (optional - uncomment to ignore)
+# /android/app/google-services.json
+# /ios/Runner/GoogleService-Info.plist
