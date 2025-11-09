@@ -82,8 +82,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         smsCode: otp,
       );
 
-      final userCredential =
-          await firebaseAuth.signInWithCredential(credential);
+      final userCredential = await firebaseAuth.signInWithCredential(
+        credential,
+      );
 
       if (userCredential.user == null) {
         throw UserNotFoundException();

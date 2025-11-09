@@ -5,11 +5,7 @@ class User extends Equatable {
   final String? phoneNumber;
   final String? displayName;
 
-  const User({
-    required this.uid,
-    this.phoneNumber,
-    this.displayName,
-  });
+  const User({required this.uid, this.phoneNumber, this.displayName});
 
   @override
   List<Object?> get props => [uid, phoneNumber, displayName];

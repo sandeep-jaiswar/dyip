@@ -22,10 +22,7 @@ class VerifyOtpEvent extends AuthEvent {
   final String verificationId;
   final String otp;
 
-  const VerifyOtpEvent({
-    required this.verificationId,
-    required this.otp,
-  });
+  const VerifyOtpEvent({required this.verificationId, required this.otp});
 
   @override
   List<Object> get props => [verificationId, otp];

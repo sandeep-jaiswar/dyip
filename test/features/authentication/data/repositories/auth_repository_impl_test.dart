@@ -23,47 +23,56 @@ void main() {
     const testPhoneNumber = '+1234567890';
     const testVerificationId = 'test_verification_id';
 
-    test('should return verification ID when call to data source is successful',
-        () async {
-      // arrange
-      when(() => mockRemoteDataSource.sendOtp(any()))
-          .thenAnswer((_) async => testVerificationId);
+    test(
+      'should return verification ID when call to data source is successful',
+      () async {
+        // arrange
+        when(
+          () => mockRemoteDataSource.sendOtp(any()),
+        ).thenAnswer((_) async => testVerificationId);
 
-      // act
-      final result = await repository.sendOtp(testPhoneNumber);
+        // act
+        final result = await repository.sendOtp(testPhoneNumber);
 
-      // assert
-      expect(result, const Right(testVerificationId));
-      verify(() => mockRemoteDataSource.sendOtp(testPhoneNumber)).called(1);
-    });
+        // assert
+        expect(result, const Right(testVerificationId));
+        verify(() => mockRemoteDataSource.sendOtp(testPhoneNumber)).called(1);
+      },
+    );
 
-    test('should return InvalidPhoneNumberFailure when exception is thrown',
-        () async {
-      // arrange
-      when(() => mockRemoteDataSource.sendOtp(any()))
-          .thenThrow(InvalidPhoneNumberException());
+    test(
+      'should return InvalidPhoneNumberFailure when exception is thrown',
+      () async {
+        // arrange
+        when(
+          () => mockRemoteDataSource.sendOtp(any()),
+        ).thenThrow(InvalidPhoneNumberException());
 
-      // act
-      final result = await repository.sendOtp(testPhoneNumber);
+        // act
+        final result = await repository.sendOtp(testPhoneNumber);
 
-      // assert
-      expect(result, Left(InvalidPhoneNumberFailure()));
-      verify(() => mockRemoteDataSource.sendOtp(testPhoneNumber)).called(1);
-    });
+        // assert
+        expect(result, Left(InvalidPhoneNumberFailure()));
+        verify(() => mockRemoteDataSource.sendOtp(testPhoneNumber)).called(1);
+      },
+    );
 
-    test('should return NetworkFailure when NetworkException is thrown',
-        () async {
-      // arrange
-      when(() => mockRemoteDataSource.sendOtp(any()))
-          .thenThrow(NetworkException());
+    test(
+      'should return NetworkFailure when NetworkException is thrown',
+      () async {
+        // arrange
+        when(
+          () => mockRemoteDataSource.sendOtp(any()),
+        ).thenThrow(NetworkException());
 
-      // act
-      final result = await repository.sendOtp(testPhoneNumber);
+        // act
+        final result = await repository.sendOtp(testPhoneNumber);
 
-      // assert
-      expect(result, Left(NetworkFailure()));
-      verify(() => mockRemoteDataSource.sendOtp(testPhoneNumber)).called(1);
-    });
+        // assert
+        expect(result, Left(NetworkFailure()));
+        verify(() => mockRemoteDataSource.sendOtp(testPhoneNumber)).called(1);
+      },
+    );
   });
 
   group('verifyOtp', () {
@@ -76,10 +85,12 @@ void main() {
 
     test('should return User when call to data source is successful', () async {
       // arrange
-      when(() => mockRemoteDataSource.verifyOtp(
-            verificationId: any(named: 'verificationId'),
-            otp: any(named: 'otp'),
-          )).thenAnswer((_) async => testUserModel);
+      when(
+        () => mockRemoteDataSource.verifyOtp(
+          verificationId: any(named: 'verificationId'),
+          otp: any(named: 'otp'),
+        ),
+      ).thenAnswer((_) async => testUserModel);
 
       // act
       final result = await repository.verifyOtp(
@@ -89,26 +100,27 @@ void main() {
 
       // assert
       expect(result.isRight(), true);
-      result.fold(
-        (l) => fail('Should return Right'),
-        (r) {
-          expect(r, isA<User>());
-          expect(r.uid, testUserModel.uid);
-          expect(r.phoneNumber, testUserModel.phoneNumber);
-        },
-      );
-      verify(() => mockRemoteDataSource.verifyOtp(
-            verificationId: testVerificationId,
-            otp: testOtp,
-          )).called(1);
+      result.fold((l) => fail('Should return Right'), (r) {
+        expect(r, isA<User>());
+        expect(r.uid, testUserModel.uid);
+        expect(r.phoneNumber, testUserModel.phoneNumber);
+      });
+      verify(
+        () => mockRemoteDataSource.verifyOtp(
+          verificationId: testVerificationId,
+          otp: testOtp,
+        ),
+      ).called(1);
     });
 
     test('should return InvalidOtpFailure when exception is thrown', () async {
       // arrange
-      when(() => mockRemoteDataSource.verifyOtp(
-            verificationId: any(named: 'verificationId'),
-            otp: any(named: 'otp'),
-          )).thenThrow(InvalidOtpException());
+      when(
+        () => mockRemoteDataSource.verifyOtp(
+          verificationId: any(named: 'verificationId'),
+          otp: any(named: 'otp'),
+        ),
+      ).thenThrow(InvalidOtpException());
 
       // act
       final result = await repository.verifyOtp(
@@ -136,21 +148,19 @@ void main() {
 
     test('should return UnknownAuthFailure when exception is thrown', () async {
       // arrange
-      when(() => mockRemoteDataSource.logout())
-          .thenThrow(UnknownAuthException('Logout failed'));
+      when(
+        () => mockRemoteDataSource.logout(),
+      ).thenThrow(UnknownAuthException('Logout failed'));
 
       // act
       final result = await repository.logout();
 
       // assert
       expect(result.isLeft(), true);
-      result.fold(
-        (l) {
-          expect(l, isA<UnknownAuthFailure>());
-          expect((l as UnknownAuthFailure).message, 'Logout failed');
-        },
-        (r) => fail('Should return Left'),
-      );
+      result.fold((l) {
+        expect(l, isA<UnknownAuthFailure>());
+        expect((l as UnknownAuthFailure).message, 'Logout failed');
+      }, (r) => fail('Should return Left'));
     });
   });
 
@@ -162,27 +172,26 @@ void main() {
 
     test('should return User when user is logged in', () async {
       // arrange
-      when(() => mockRemoteDataSource.getCurrentUser())
-          .thenAnswer((_) async => testUserModel);
+      when(
+        () => mockRemoteDataSource.getCurrentUser(),
+      ).thenAnswer((_) async => testUserModel);
 
       // act
       final result = await repository.getCurrentUser();
 
       // assert
       expect(result.isRight(), true);
-      result.fold(
-        (l) => fail('Should return Right'),
-        (r) {
-          expect(r, isA<User>());
-          expect(r?.uid, testUserModel.uid);
-        },
-      );
+      result.fold((l) => fail('Should return Right'), (r) {
+        expect(r, isA<User>());
+        expect(r?.uid, testUserModel.uid);
+      });
     });
 
     test('should return null when no user is logged in', () async {
       // arrange
-      when(() => mockRemoteDataSource.getCurrentUser())
-          .thenAnswer((_) async => null);
+      when(
+        () => mockRemoteDataSource.getCurrentUser(),
+      ).thenAnswer((_) async => null);
 
       // act
       final result = await repository.getCurrentUser();

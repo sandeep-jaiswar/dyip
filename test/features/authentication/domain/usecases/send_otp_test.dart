@@ -20,8 +20,9 @@ void main() {
 
   test('should forward call to repository', () async {
     // arrange
-    when(() => mockRepository.sendOtp(any()))
-        .thenAnswer((_) async => const Right(testVerificationId));
+    when(
+      () => mockRepository.sendOtp(any()),
+    ).thenAnswer((_) async => const Right(testVerificationId));
 
     // act
     final result = await usecase(SendOtpParams(testPhoneNumber));

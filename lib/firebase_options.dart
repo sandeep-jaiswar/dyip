@@ -51,155 +51,116 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get web => FirebaseOptions(
-        apiKey: _getEnv(
-          'FIREBASE_API_KEY_WEB',
-          defaultValue: 'test-key',
-        ),
-        appId: _getEnv(
-          'FIREBASE_APP_ID_WEB',
-          defaultValue: '1:123456789:web:test',
-        ),
-        messagingSenderId: _getEnv(
-          'FIREBASE_MESSAGING_SENDER_ID',
-          defaultValue: '123456789',
-        ),
-        projectId: _getEnv(
-          'FIREBASE_PROJECT_ID',
-          defaultValue: 'test-project',
-        ),
-        authDomain: _getEnv(
-          'FIREBASE_AUTH_DOMAIN',
-          defaultValue: 'test-project.firebaseapp.com',
-        ),
-        databaseURL: _getEnv(
-          'FIREBASE_DATABASE_URL',
-          defaultValue: 'https://test-project.firebaseio.com',
-        ),
-        storageBucket: _getEnv(
-          'FIREBASE_STORAGE_BUCKET',
-          defaultValue: 'test-project.appspot.com',
-        ),
-        measurementId: _getEnv('FIREBASE_MEASUREMENT_ID_WEB'),
-      );
+    apiKey: _getEnv('FIREBASE_API_KEY_WEB', defaultValue: 'test-key'),
+    appId: _getEnv('FIREBASE_APP_ID_WEB', defaultValue: '1:123456789:web:test'),
+    messagingSenderId: _getEnv(
+      'FIREBASE_MESSAGING_SENDER_ID',
+      defaultValue: '123456789',
+    ),
+    projectId: _getEnv('FIREBASE_PROJECT_ID', defaultValue: 'test-project'),
+    authDomain: _getEnv(
+      'FIREBASE_AUTH_DOMAIN',
+      defaultValue: 'test-project.firebaseapp.com',
+    ),
+    databaseURL: _getEnv(
+      'FIREBASE_DATABASE_URL',
+      defaultValue: 'https://test-project.firebaseio.com',
+    ),
+    storageBucket: _getEnv(
+      'FIREBASE_STORAGE_BUCKET',
+      defaultValue: 'test-project.appspot.com',
+    ),
+    measurementId: _getEnv('FIREBASE_MEASUREMENT_ID_WEB'),
+  );
 
   static FirebaseOptions get android => FirebaseOptions(
-        apiKey: _getEnv(
-          'FIREBASE_API_KEY_ANDROID',
-          defaultValue: 'test-key',
-        ),
-        appId: _getEnv(
-          'FIREBASE_APP_ID_ANDROID',
-          defaultValue: '1:123456789:android:test',
-        ),
-        messagingSenderId: _getEnv(
-          'FIREBASE_MESSAGING_SENDER_ID',
-          defaultValue: '123456789',
-        ),
-        projectId: _getEnv(
-          'FIREBASE_PROJECT_ID',
-          defaultValue: 'test-project',
-        ),
-        databaseURL: _getEnv(
-          'FIREBASE_DATABASE_URL',
-          defaultValue: 'https://test-project.firebaseio.com',
-        ),
-        storageBucket: _getEnv(
-          'FIREBASE_STORAGE_BUCKET',
-          defaultValue: 'test-project.appspot.com',
-        ),
-      );
+    apiKey: _getEnv('FIREBASE_API_KEY_ANDROID', defaultValue: 'test-key'),
+    appId: _getEnv(
+      'FIREBASE_APP_ID_ANDROID',
+      defaultValue: '1:123456789:android:test',
+    ),
+    messagingSenderId: _getEnv(
+      'FIREBASE_MESSAGING_SENDER_ID',
+      defaultValue: '123456789',
+    ),
+    projectId: _getEnv('FIREBASE_PROJECT_ID', defaultValue: 'test-project'),
+    databaseURL: _getEnv(
+      'FIREBASE_DATABASE_URL',
+      defaultValue: 'https://test-project.firebaseio.com',
+    ),
+    storageBucket: _getEnv(
+      'FIREBASE_STORAGE_BUCKET',
+      defaultValue: 'test-project.appspot.com',
+    ),
+  );
 
   static FirebaseOptions get ios => FirebaseOptions(
-        apiKey: _getEnv(
-          'FIREBASE_API_KEY_IOS',
-          defaultValue: 'test-key',
-        ),
-        appId: _getEnv(
-          'FIREBASE_APP_ID_IOS',
-          defaultValue: '1:123456789:ios:test',
-        ),
-        messagingSenderId: _getEnv(
-          'FIREBASE_MESSAGING_SENDER_ID',
-          defaultValue: '123456789',
-        ),
-        projectId: _getEnv(
-          'FIREBASE_PROJECT_ID',
-          defaultValue: 'test-project',
-        ),
-        databaseURL: _getEnv(
-          'FIREBASE_DATABASE_URL',
-          defaultValue: 'https://test-project.firebaseio.com',
-        ),
-        storageBucket: _getEnv(
-          'FIREBASE_STORAGE_BUCKET',
-          defaultValue: 'test-project.appspot.com',
-        ),
-        iosBundleId: _getEnv(
-          'FIREBASE_IOS_BUNDLE_ID',
-          defaultValue: 'com.jspl.dyip',
-        ),
-      );
+    apiKey: _getEnv('FIREBASE_API_KEY_IOS', defaultValue: 'test-key'),
+    appId: _getEnv('FIREBASE_APP_ID_IOS', defaultValue: '1:123456789:ios:test'),
+    messagingSenderId: _getEnv(
+      'FIREBASE_MESSAGING_SENDER_ID',
+      defaultValue: '123456789',
+    ),
+    projectId: _getEnv('FIREBASE_PROJECT_ID', defaultValue: 'test-project'),
+    databaseURL: _getEnv(
+      'FIREBASE_DATABASE_URL',
+      defaultValue: 'https://test-project.firebaseio.com',
+    ),
+    storageBucket: _getEnv(
+      'FIREBASE_STORAGE_BUCKET',
+      defaultValue: 'test-project.appspot.com',
+    ),
+    iosBundleId: _getEnv(
+      'FIREBASE_IOS_BUNDLE_ID',
+      defaultValue: 'com.jspl.dyip',
+    ),
+  );
 
   static FirebaseOptions get macos => FirebaseOptions(
-        apiKey: _getEnv(
-          'FIREBASE_API_KEY_IOS',
-          defaultValue: 'test-key',
-        ),
-        appId: _getEnv(
-          'FIREBASE_APP_ID_IOS',
-          defaultValue: '1:123456789:ios:test',
-        ),
-        messagingSenderId: _getEnv(
-          'FIREBASE_MESSAGING_SENDER_ID',
-          defaultValue: '123456789',
-        ),
-        projectId: _getEnv(
-          'FIREBASE_PROJECT_ID',
-          defaultValue: 'test-project',
-        ),
-        databaseURL: _getEnv(
-          'FIREBASE_DATABASE_URL',
-          defaultValue: 'https://test-project.firebaseio.com',
-        ),
-        storageBucket: _getEnv(
-          'FIREBASE_STORAGE_BUCKET',
-          defaultValue: 'test-project.appspot.com',
-        ),
-        iosBundleId: _getEnv(
-          'FIREBASE_IOS_BUNDLE_ID',
-          defaultValue: 'com.jspl.dyip',
-        ),
-      );
+    apiKey: _getEnv('FIREBASE_API_KEY_IOS', defaultValue: 'test-key'),
+    appId: _getEnv('FIREBASE_APP_ID_IOS', defaultValue: '1:123456789:ios:test'),
+    messagingSenderId: _getEnv(
+      'FIREBASE_MESSAGING_SENDER_ID',
+      defaultValue: '123456789',
+    ),
+    projectId: _getEnv('FIREBASE_PROJECT_ID', defaultValue: 'test-project'),
+    databaseURL: _getEnv(
+      'FIREBASE_DATABASE_URL',
+      defaultValue: 'https://test-project.firebaseio.com',
+    ),
+    storageBucket: _getEnv(
+      'FIREBASE_STORAGE_BUCKET',
+      defaultValue: 'test-project.appspot.com',
+    ),
+    iosBundleId: _getEnv(
+      'FIREBASE_IOS_BUNDLE_ID',
+      defaultValue: 'com.jspl.dyip',
+    ),
+  );
 
   static FirebaseOptions get windows => FirebaseOptions(
-        apiKey: _getEnv(
-          'FIREBASE_API_KEY_WINDOWS',
-          defaultValue: 'test-key',
-        ),
-        appId: _getEnv(
-          'FIREBASE_APP_ID_WINDOWS',
-          defaultValue: '1:123456789:windows:test',
-        ),
-        messagingSenderId: _getEnv(
-          'FIREBASE_MESSAGING_SENDER_ID',
-          defaultValue: '123456789',
-        ),
-        projectId: _getEnv(
-          'FIREBASE_PROJECT_ID',
-          defaultValue: 'test-project',
-        ),
-        authDomain: _getEnv(
-          'FIREBASE_AUTH_DOMAIN',
-          defaultValue: 'test-project.firebaseapp.com',
-        ),
-        databaseURL: _getEnv(
-          'FIREBASE_DATABASE_URL',
-          defaultValue: 'https://test-project.firebaseio.com',
-        ),
-        storageBucket: _getEnv(
-          'FIREBASE_STORAGE_BUCKET',
-          defaultValue: 'test-project.appspot.com',
-        ),
-        measurementId: _getEnv('FIREBASE_MEASUREMENT_ID_WINDOWS'),
-      );
+    apiKey: _getEnv('FIREBASE_API_KEY_WINDOWS', defaultValue: 'test-key'),
+    appId: _getEnv(
+      'FIREBASE_APP_ID_WINDOWS',
+      defaultValue: '1:123456789:windows:test',
+    ),
+    messagingSenderId: _getEnv(
+      'FIREBASE_MESSAGING_SENDER_ID',
+      defaultValue: '123456789',
+    ),
+    projectId: _getEnv('FIREBASE_PROJECT_ID', defaultValue: 'test-project'),
+    authDomain: _getEnv(
+      'FIREBASE_AUTH_DOMAIN',
+      defaultValue: 'test-project.firebaseapp.com',
+    ),
+    databaseURL: _getEnv(
+      'FIREBASE_DATABASE_URL',
+      defaultValue: 'https://test-project.firebaseio.com',
+    ),
+    storageBucket: _getEnv(
+      'FIREBASE_STORAGE_BUCKET',
+      defaultValue: 'test-project.appspot.com',
+    ),
+    measurementId: _getEnv('FIREBASE_MEASUREMENT_ID_WINDOWS'),
+  );
 }

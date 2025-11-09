@@ -27,9 +27,7 @@ class HomeScreen extends StatelessWidget {
         listener: (context, state) {
           if (state is Unauthenticated) {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => const PhoneInputScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const PhoneInputScreen()),
               (route) => false,
             );
           } else if (state is AuthError) {
@@ -43,9 +41,7 @@ class HomeScreen extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is AuthLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (state is Authenticated) {
@@ -71,18 +67,12 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       'Phone: ${state.user.phoneNumber ?? 'N/A'}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'User ID: ${state.user.uid}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 32),
@@ -97,9 +87,7 @@ class HomeScreen extends StatelessWidget {
             );
           }
 
-          return const Center(
-            child: Text('Something went wrong'),
-          );
+          return const Center(child: Text('Something went wrong'));
         },
       ),
     );

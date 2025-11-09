@@ -18,30 +18,30 @@ void main() {
 
   const testVerificationId = 'test_verification_id';
   const testOtp = '123456';
-  const testUser = User(
-    uid: 'test_uid',
-    phoneNumber: '+1234567890',
-  );
+  const testUser = User(uid: 'test_uid', phoneNumber: '+1234567890');
 
   test('should forward call to repository with correct parameters', () async {
     // arrange
-    when(() => mockRepository.verifyOtp(
-          verificationId: any(named: 'verificationId'),
-          otp: any(named: 'otp'),
-        )).thenAnswer((_) async => const Right(testUser));
+    when(
+      () => mockRepository.verifyOtp(
+        verificationId: any(named: 'verificationId'),
+        otp: any(named: 'otp'),
+      ),
+    ).thenAnswer((_) async => const Right(testUser));
 
     // act
-    final result = await usecase(VerifyOtpParams(
-      verificationId: testVerificationId,
-      otp: testOtp,
-    ));
+    final result = await usecase(
+      VerifyOtpParams(verificationId: testVerificationId, otp: testOtp),
+    );
 
     // assert
     expect(result, const Right(testUser));
-    verify(() => mockRepository.verifyOtp(
-          verificationId: testVerificationId,
-          otp: testOtp,
-        )).called(1);
+    verify(
+      () => mockRepository.verifyOtp(
+        verificationId: testVerificationId,
+        otp: testOtp,
+      ),
+    ).called(1);
     verifyNoMoreInteractions(mockRepository);
   });
 }

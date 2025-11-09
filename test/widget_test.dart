@@ -7,11 +7,7 @@ void main() {
     // Build a simple test app
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: Text('Test'),
-          ),
-        ),
+        home: Scaffold(body: Center(child: Text('Test'))),
       ),
     );
 

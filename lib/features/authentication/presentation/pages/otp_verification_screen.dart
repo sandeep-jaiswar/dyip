@@ -45,26 +45,21 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   void _verifyOtp() {
     if (_formKey.currentState!.validate()) {
       final otp = _otpController.text.trim();
-      context.read<AuthBloc>().add(VerifyOtpEvent(
-            verificationId: widget.verificationId,
-            otp: otp,
-          ));
+      context.read<AuthBloc>().add(
+        VerifyOtpEvent(verificationId: widget.verificationId, otp: otp),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Verify OTP'),
-      ),
+      appBar: AppBar(title: const Text('Verify OTP')),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
             Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => const HomeScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
               (route) => false,
             );
           } else if (state is AuthError) {
@@ -93,19 +88,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   const SizedBox(height: 32),
                   const Text(
                     'Enter Verification Code',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'We sent an OTP to ${widget.phoneNumber}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),

@@ -27,8 +27,9 @@ void main() {
   group('GetCurrentUser', () {
     test('should return current user from repository', () async {
       // arrange
-      when(() => mockRepository.getCurrentUser())
-          .thenAnswer((_) async => const Right(testUser));
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenAnswer((_) async => const Right(testUser));
 
       // act
       final result = await usecase(NoParams());
@@ -41,8 +42,9 @@ void main() {
 
     test('should return null when no user is authenticated', () async {
       // arrange
-      when(() => mockRepository.getCurrentUser())
-          .thenAnswer((_) async => const Right(null));
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenAnswer((_) async => const Right(null));
 
       // act
       final result = await usecase(NoParams());
@@ -56,8 +58,9 @@ void main() {
     test('should return failure when repository fails', () async {
       // arrange
       final failure = NetworkFailure();
-      when(() => mockRepository.getCurrentUser())
-          .thenAnswer((_) async => Left(failure));
+      when(
+        () => mockRepository.getCurrentUser(),
+      ).thenAnswer((_) async => Left(failure));
 
       // act
       final result = await usecase(NoParams());

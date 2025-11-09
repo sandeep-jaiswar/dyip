@@ -18,8 +18,9 @@ void main() {
 
   test('should forward call to repository', () async {
     // arrange
-    when(() => mockRepository.logout())
-        .thenAnswer((_) async => const Right(null));
+    when(
+      () => mockRepository.logout(),
+    ).thenAnswer((_) async => const Right(null));
 
     // act
     final result = await usecase(NoParams());

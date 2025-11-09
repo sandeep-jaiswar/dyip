@@ -22,8 +22,5 @@ class VerifyOtpParams {
   final String verificationId;
   final String otp;
 
-  VerifyOtpParams({
-    required this.verificationId,
-    required this.otp,
-  });
+  VerifyOtpParams({required this.verificationId, required this.otp});
 }

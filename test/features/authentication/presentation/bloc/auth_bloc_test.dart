@@ -43,10 +43,9 @@ void main() {
 
     registerFallbackValue(NoParams());
     registerFallbackValue(SendOtpParams('+1234567890'));
-    registerFallbackValue(VerifyOtpParams(
-      verificationId: 'test_id',
-      otp: '123456',
-    ));
+    registerFallbackValue(
+      VerifyOtpParams(verificationId: 'test_id', otp: '123456'),
+    );
   });
 
   tearDown(() {
@@ -54,37 +53,30 @@ void main() {
   });
 
   group('CheckAuthStatusEvent', () {
-    const testUser = User(
-      uid: 'test_uid',
-      phoneNumber: '+1234567890',
-    );
+    const testUser = User(uid: 'test_uid', phoneNumber: '+1234567890');
 
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, Authenticated] when user is logged in',
       build: () {
-        when(() => mockGetCurrentUser(any()))
-            .thenAnswer((_) async => const Right(testUser));
+        when(
+          () => mockGetCurrentUser(any()),
+        ).thenAnswer((_) async => const Right(testUser));
         return bloc;
       },
       act: (bloc) => bloc.add(CheckAuthStatusEvent()),
-      expect: () => [
-        AuthLoading(),
-        const Authenticated(testUser),
-      ],
+      expect: () => [AuthLoading(), const Authenticated(testUser)],
     );
 
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, Unauthenticated] when no user is logged in',
       build: () {
-        when(() => mockGetCurrentUser(any()))
-            .thenAnswer((_) async => const Right(null));
+        when(
+          () => mockGetCurrentUser(any()),
+        ).thenAnswer((_) async => const Right(null));
         return bloc;
       },
       act: (bloc) => bloc.add(CheckAuthStatusEvent()),
-      expect: () => [
-        AuthLoading(),
-        Unauthenticated(),
-      ],
+      expect: () => [AuthLoading(), Unauthenticated()],
     );
   });
 
@@ -95,22 +87,21 @@ void main() {
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, OtpSent] when OTP is sent successfully',
       build: () {
-        when(() => mockSendOtp(any()))
-            .thenAnswer((_) async => const Right(testVerificationId));
+        when(
+          () => mockSendOtp(any()),
+        ).thenAnswer((_) async => const Right(testVerificationId));
         return bloc;
       },
       act: (bloc) => bloc.add(const SendOtpEvent(testPhoneNumber)),
-      expect: () => [
-        AuthLoading(),
-        const OtpSent(testVerificationId),
-      ],
+      expect: () => [AuthLoading(), const OtpSent(testVerificationId)],
     );
 
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, AuthError] when sending OTP fails',
       build: () {
-        when(() => mockSendOtp(any()))
-            .thenAnswer((_) async => Left(InvalidPhoneNumberFailure()));
+        when(
+          () => mockSendOtp(any()),
+        ).thenAnswer((_) async => Left(InvalidPhoneNumberFailure()));
         return bloc;
       },
       act: (bloc) => bloc.add(const SendOtpEvent(testPhoneNumber)),
@@ -124,39 +115,33 @@ void main() {
   group('VerifyOtpEvent', () {
     const testVerificationId = 'test_verification_id';
     const testOtp = '123456';
-    const testUser = User(
-      uid: 'test_uid',
-      phoneNumber: '+1234567890',
-    );
+    const testUser = User(uid: 'test_uid', phoneNumber: '+1234567890');
 
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, Authenticated] when OTP is verified successfully',
       build: () {
-        when(() => mockVerifyOtp(any()))
-            .thenAnswer((_) async => const Right(testUser));
+        when(
+          () => mockVerifyOtp(any()),
+        ).thenAnswer((_) async => const Right(testUser));
         return bloc;
       },
-      act: (bloc) => bloc.add(const VerifyOtpEvent(
-        verificationId: testVerificationId,
-        otp: testOtp,
-      )),
-      expect: () => [
-        AuthLoading(),
-        const Authenticated(testUser),
-      ],
+      act: (bloc) => bloc.add(
+        const VerifyOtpEvent(verificationId: testVerificationId, otp: testOtp),
+      ),
+      expect: () => [AuthLoading(), const Authenticated(testUser)],
     );
 
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, AuthError] when OTP verification fails',
       build: () {
-        when(() => mockVerifyOtp(any()))
-            .thenAnswer((_) async => Left(InvalidOtpFailure()));
+        when(
+          () => mockVerifyOtp(any()),
+        ).thenAnswer((_) async => Left(InvalidOtpFailure()));
         return bloc;
       },
-      act: (bloc) => bloc.add(const VerifyOtpEvent(
-        verificationId: testVerificationId,
-        otp: testOtp,
-      )),
+      act: (bloc) => bloc.add(
+        const VerifyOtpEvent(verificationId: testVerificationId, otp: testOtp),
+      ),
       expect: () => [
         AuthLoading(),
         const AuthError('Invalid OTP. Please check and try again.'),
@@ -168,29 +153,25 @@ void main() {
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, Unauthenticated] when logout is successful',
       build: () {
-        when(() => mockLogout(any()))
-            .thenAnswer((_) async => const Right(null));
+        when(
+          () => mockLogout(any()),
+        ).thenAnswer((_) async => const Right(null));
         return bloc;
       },
       act: (bloc) => bloc.add(LogoutEvent()),
-      expect: () => [
-        AuthLoading(),
-        Unauthenticated(),
-      ],
+      expect: () => [AuthLoading(), Unauthenticated()],
     );
 
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, AuthError] when logout fails',
       build: () {
         when(() => mockLogout(any())).thenAnswer(
-            (_) async => Left(const UnknownAuthFailure('Logout failed')));
+          (_) async => Left(const UnknownAuthFailure('Logout failed')),
+        );
         return bloc;
       },
       act: (bloc) => bloc.add(LogoutEvent()),
-      expect: () => [
-        AuthLoading(),
-        const AuthError('Logout failed'),
-      ],
+      expect: () => [AuthLoading(), const AuthError('Logout failed')],
     );
   });
 }

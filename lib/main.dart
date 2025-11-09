@@ -21,9 +21,7 @@ void main() async {
     // Firebase will use default/empty values
   }
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -46,9 +44,7 @@ class MyApp extends StatelessWidget {
           builder: (context, state) {
             if (state is AuthLoading || state is AuthInitial) {
               return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
+                body: Center(child: CircularProgressIndicator()),
               );
             } else if (state is Authenticated) {
               return const HomeScreen();

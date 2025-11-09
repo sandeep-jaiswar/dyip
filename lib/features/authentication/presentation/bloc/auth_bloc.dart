@@ -33,22 +33,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     final result = await getCurrentUser(NoParams());
-    result.fold(
-      (failure) => emit(Unauthenticated()),
-      (user) {
-        if (user != null) {
-          emit(Authenticated(user));
-        } else {
-          emit(Unauthenticated());
-        }
-      },
-    );
+    result.fold((failure) => emit(Unauthenticated()), (user) {
+      if (user != null) {
+        emit(Authenticated(user));
+      } else {
+        emit(Unauthenticated());
+      }
+    });
   }
 
-  Future<void> _onSendOtp(
-    SendOtpEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onSendOtp(SendOtpEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final result = await sendOtp(SendOtpParams(event.phoneNumber));
     result.fold(
@@ -62,20 +56,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(AuthLoading());
-    final result = await verifyOtp(VerifyOtpParams(
-      verificationId: event.verificationId,
-      otp: event.otp,
-    ));
+    final result = await verifyOtp(
+      VerifyOtpParams(verificationId: event.verificationId, otp: event.otp),
+    );
     result.fold(
       (failure) => emit(AuthError(_mapFailureToMessage(failure))),
       (user) => emit(Authenticated(user)),
     );
   }
 
-  Future<void> _onLogout(
-    LogoutEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final result = await logout(NoParams());
     result.fold(
