@@ -134,8 +134,7 @@ void main() {
       verify(() => mockRemoteDataSource.logout()).called(1);
     });
 
-    test('should return UnknownAuthFailure when exception is thrown',
-        () async {
+    test('should return UnknownAuthFailure when exception is thrown', () async {
       // arrange
       when(() => mockRemoteDataSource.logout())
           .thenThrow(UnknownAuthException('Logout failed'));

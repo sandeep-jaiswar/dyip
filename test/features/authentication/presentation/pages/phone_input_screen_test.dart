@@ -38,8 +38,8 @@ void main() {
 
     // assert
     expect(find.text('Enter Your Phone Number'), findsOneWidget);
-    expect(find.text('We will send you an OTP for verification'),
-        findsOneWidget);
+    expect(
+        find.text('We will send you an OTP for verification'), findsOneWidget);
     expect(find.byType(TextFormField), findsOneWidget);
     expect(find.text('Send OTP'), findsOneWidget);
   });
