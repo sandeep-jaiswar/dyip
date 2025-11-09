@@ -29,6 +29,98 @@ void main() {
   });
 
   group('AuthRemoteDataSource', () {
+    group('sendOtp', () {
+      const testPhoneNumber = '+1234567890';
+      const testVerificationId = 'test_verification_id_123';
+
+      test('should return verification ID when code is sent successfully',
+          () async {
+        // arrange
+        when(() => mockFirebaseAuth.verifyPhoneNumber(
+              phoneNumber: any(named: 'phoneNumber'),
+              verificationCompleted: any(named: 'verificationCompleted'),
+              verificationFailed: any(named: 'verificationFailed'),
+              codeSent: any(named: 'codeSent'),
+              codeAutoRetrievalTimeout:
+                  any(named: 'codeAutoRetrievalTimeout'),
+              timeout: any(named: 'timeout'),
+            )).thenAnswer((invocation) async {
+          // Simulate codeSent callback
+          final codeSent =
+              invocation.namedArguments[const Symbol('codeSent')]
+                  as void Function(String, int?);
+          codeSent(testVerificationId, null);
+        });
+
+        // act
+        final result = await dataSource.sendOtp(testPhoneNumber);
+
+        // assert
+        expect(result, testVerificationId);
+        verify(() => mockFirebaseAuth.verifyPhoneNumber(
+              phoneNumber: testPhoneNumber,
+              verificationCompleted: any(named: 'verificationCompleted'),
+              verificationFailed: any(named: 'verificationFailed'),
+              codeSent: any(named: 'codeSent'),
+              codeAutoRetrievalTimeout:
+                  any(named: 'codeAutoRetrievalTimeout'),
+              timeout: any(named: 'timeout'),
+            )).called(1);
+      });
+
+      test('should throw exception when verification fails', () async {
+        // arrange
+        when(() => mockFirebaseAuth.verifyPhoneNumber(
+              phoneNumber: any(named: 'phoneNumber'),
+              verificationCompleted: any(named: 'verificationCompleted'),
+              verificationFailed: any(named: 'verificationFailed'),
+              codeSent: any(named: 'codeSent'),
+              codeAutoRetrievalTimeout:
+                  any(named: 'codeAutoRetrievalTimeout'),
+              timeout: any(named: 'timeout'),
+            )).thenAnswer((invocation) async {
+          // Simulate verificationFailed callback
+          final verificationFailed = invocation
+                  .namedArguments[const Symbol('verificationFailed')]
+              as void Function(firebase_auth.FirebaseAuthException);
+          verificationFailed(firebase_auth.FirebaseAuthException(
+              code: 'invalid-phone-number'));
+        });
+
+        // act & assert
+        expect(
+          () => dataSource.sendOtp(testPhoneNumber),
+          throwsA(isA<InvalidPhoneNumberException>()),
+        );
+      });
+
+      test('should return verification ID on auto-retrieval timeout',
+          () async {
+        // arrange
+        when(() => mockFirebaseAuth.verifyPhoneNumber(
+              phoneNumber: any(named: 'phoneNumber'),
+              verificationCompleted: any(named: 'verificationCompleted'),
+              verificationFailed: any(named: 'verificationFailed'),
+              codeSent: any(named: 'codeSent'),
+              codeAutoRetrievalTimeout:
+                  any(named: 'codeAutoRetrievalTimeout'),
+              timeout: any(named: 'timeout'),
+            )).thenAnswer((invocation) async {
+          // Simulate codeAutoRetrievalTimeout callback (when codeSent wasn't called)
+          final codeAutoRetrievalTimeout = invocation
+                  .namedArguments[const Symbol('codeAutoRetrievalTimeout')]
+              as void Function(String);
+          codeAutoRetrievalTimeout(testVerificationId);
+        });
+
+        // act
+        final result = await dataSource.sendOtp(testPhoneNumber);
+
+        // assert
+        expect(result, testVerificationId);
+      });
+    });
+
     group('verifyOtp', () {
       const testVerificationId = 'test_verification_id';
       const testOtp = '123456';
