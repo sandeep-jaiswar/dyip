@@ -48,9 +48,10 @@ app.*.map.json
 # Uncomment the line below to ignore firebase_options.dart if using environment-specific configs
 # /lib/firebase_options.dart
 
-# Firebase project files (optional - uncomment to ignore)
-# /android/app/google-services.json
-# /ios/Runner/GoogleService-Info.plist
+# Firebase project files (contains sensitive credentials)
+/android/app/google-services.json
+/ios/Runner/GoogleService-Info.plist
 
 # Environment variables (contains sensitive data)
 .env
+

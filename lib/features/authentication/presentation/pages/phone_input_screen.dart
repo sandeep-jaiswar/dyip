@@ -26,9 +26,11 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
     if (value == null || value.isEmpty) {
       return 'Please enter your phone number';
     }
+    // Remove spaces and dashes for validation
+    final normalized = value.replaceAll(RegExp(r'[\s-]'), '');
     // Basic validation for phone number format
     final phoneRegex = RegExp(r'^\+?[1-9]\d{1,14}$');
-    if (!phoneRegex.hasMatch(value.replaceAll(RegExp(r'[\s-]'), ''))) {
+    if (!phoneRegex.hasMatch(normalized)) {
       return 'Please enter a valid phone number';
     }
     return null;
@@ -36,7 +38,9 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
 
   void _sendOtp() {
     if (_formKey.currentState!.validate()) {
-      final phoneNumber = _phoneController.text.trim();
+      // Normalize phone number by removing spaces and dashes
+      final phoneNumber =
+          _phoneController.text.trim().replaceAll(RegExp(r'[\s-]'), '');
       context.read<AuthBloc>().add(SendOtpEvent(phoneNumber));
     }
   }

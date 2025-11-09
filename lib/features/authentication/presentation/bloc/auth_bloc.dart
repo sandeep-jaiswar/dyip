@@ -75,23 +75,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   String _mapFailureToMessage(Failure failure) {
-    switch (failure.runtimeType) {
-      case const (InvalidPhoneNumberFailure):
-        return 'Invalid phone number. Please check and try again.';
-      case const (InvalidOtpFailure):
-        return 'Invalid OTP. Please check and try again.';
-      case const (SessionExpiredFailure):
-        return 'Session expired. Please request a new OTP.';
-      case const (TooManyRequestsFailure):
-        return 'Too many requests. Please try again later.';
-      case const (NetworkFailure):
-        return 'Network error. Please check your connection.';
-      case const (UserNotFoundFailure):
-        return 'User not found.';
-      case const (UnknownAuthFailure):
-        return (failure as UnknownAuthFailure).message;
-      default:
-        return 'An unexpected error occurred. Please try again.';
-    }
+    return switch (failure) {
+      InvalidPhoneNumberFailure() =>
+        'Invalid phone number. Please check and try again.',
+      InvalidOtpFailure() => 'Invalid OTP. Please check and try again.',
+      SessionExpiredFailure() =>
+        'Session expired. Please request a new OTP.',
+      TooManyRequestsFailure() =>
+        'Too many requests. Please try again later.',
+      NetworkFailure() => 'Network error. Please check your connection.',
+      UserNotFoundFailure() => 'User not found.',
+      UnknownAuthFailure(:final message) => message,
+      _ => 'An unexpected error occurred. Please try again.',
+    };
   }
 }

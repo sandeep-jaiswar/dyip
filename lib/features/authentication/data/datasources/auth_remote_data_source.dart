@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:dyip/core/error/exceptions.dart';
 import 'package:dyip/features/authentication/data/models/user_model.dart';
@@ -32,41 +33,54 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<String> sendOtp(String phoneNumber) async {
     try {
-      String? verificationId;
-      Exception? verificationException;
+      final completer = Completer<String>();
+      Exception? error;
 
       await firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
-        verificationCompleted: (firebase_auth.PhoneAuthCredential credential) {
-          // Auto-verification completed
+        verificationCompleted:
+            (firebase_auth.PhoneAuthCredential credential) async {
+          // Auto-verification completed - sign in automatically
+          try {
+            await firebaseAuth.signInWithCredential(credential);
+            if (!completer.isCompleted) {
+              completer.completeError(
+                UnknownAuthException(
+                    'Auto-verification completed. Please check your auth state.'),
+              );
+            }
+          } catch (e) {
+            if (!completer.isCompleted) {
+              completer.completeError(_mapFirebaseException(
+                  e as firebase_auth.FirebaseAuthException));
+            }
+          }
         },
         verificationFailed: (firebase_auth.FirebaseAuthException e) {
-          verificationException = _mapFirebaseException(e);
+          error = _mapFirebaseException(e);
+          if (!completer.isCompleted) {
+            completer.completeError(error!);
+          }
         },
         codeSent: (String verId, int? resendToken) {
-          verificationId = verId;
+          if (!completer.isCompleted) {
+            completer.complete(verId);
+          }
         },
         codeAutoRetrievalTimeout: (String verId) {
-          verificationId = verId;
+          // Timeout - but we should have gotten codeSent already
+          if (!completer.isCompleted) {
+            completer.complete(verId);
+          }
         },
         timeout: const Duration(seconds: 60),
       );
 
-      // Wait a bit for the callback to be invoked
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (verificationException != null) {
-        throw verificationException!;
-      }
-
-      if (verificationId == null) {
-        throw UnknownAuthException('Failed to send OTP');
-      }
-
-      return verificationId!;
+      return await completer.future;
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw _mapFirebaseException(e);
     } catch (e) {
+      if (e is Exception) rethrow;
       throw UnknownAuthException(e.toString());
     }
   }

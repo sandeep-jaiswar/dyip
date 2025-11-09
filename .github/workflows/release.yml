@@ -138,13 +138,31 @@ jobs:
       - name: Create production environment file
         run: |
           # Create .env file with production Firebase credentials from secrets
+          # Common settings
           echo "FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID || 'test-project' }}" > .env
+          echo "FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID || '123' }}" >> .env
+          echo "FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL || 'https://test-project.firebaseio.com' }}" >> .env
+          echo "FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET || 'test-project.appspot.com' }}" >> .env
+          echo "FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN || 'test-project.firebaseapp.com' }}" >> .env
+          
+          # Android
           echo "FIREBASE_API_KEY_ANDROID=${{ secrets.FIREBASE_API_KEY_ANDROID || 'test-key' }}" >> .env
           echo "FIREBASE_APP_ID_ANDROID=${{ secrets.FIREBASE_APP_ID_ANDROID || '1:123:android:test' }}" >> .env
-          echo "FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID || '123' }}" >> .env
+          
+          # iOS
           echo "FIREBASE_API_KEY_IOS=${{ secrets.FIREBASE_API_KEY_IOS || 'test-key' }}" >> .env
           echo "FIREBASE_APP_ID_IOS=${{ secrets.FIREBASE_APP_ID_IOS || '1:123:ios:test' }}" >> .env
           echo "FIREBASE_IOS_BUNDLE_ID=${{ secrets.FIREBASE_IOS_BUNDLE_ID || 'com.jspl.dyip' }}" >> .env
+          
+          # Web
+          echo "FIREBASE_API_KEY_WEB=${{ secrets.FIREBASE_API_KEY_WEB || 'test-key' }}" >> .env
+          echo "FIREBASE_APP_ID_WEB=${{ secrets.FIREBASE_APP_ID_WEB || '1:123:web:test' }}" >> .env
+          echo "FIREBASE_MEASUREMENT_ID_WEB=${{ secrets.FIREBASE_MEASUREMENT_ID_WEB || 'G-XXXXXXXXXX' }}" >> .env
+          
+          # Windows
+          echo "FIREBASE_API_KEY_WINDOWS=${{ secrets.FIREBASE_API_KEY_WINDOWS || 'test-key' }}" >> .env
+          echo "FIREBASE_APP_ID_WINDOWS=${{ secrets.FIREBASE_APP_ID_WINDOWS || '1:123:windows:test' }}" >> .env
+          echo "FIREBASE_MEASUREMENT_ID_WINDOWS=${{ secrets.FIREBASE_MEASUREMENT_ID_WINDOWS || 'G-XXXXXXXXXX' }}" >> .env
       
       - name: Update version in pubspec.yaml
         run: |
