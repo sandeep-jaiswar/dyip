@@ -189,7 +189,7 @@ jobs:
           ls -lh
       
       - name: Upload APKs to Release
-        uses: softprops/action-gh-release@v2.4.1
+        uses: softprops/action-gh-release@v2.4.2
         with:
           tag_name: v${{ needs.create-release.outputs.version }}
           files: |
