@@ -41,8 +41,7 @@ void main() {
 
     test('Exceptions can be thrown and caught', () {
       expect(() => throw ServerException(), throwsA(isA<ServerException>()));
-      expect(
-          () => throw NetworkException(), throwsA(isA<NetworkException>()));
+      expect(() => throw NetworkException(), throwsA(isA<NetworkException>()));
       expect(() => throw InvalidPhoneNumberException(),
           throwsA(isA<InvalidPhoneNumberException>()));
       expect(() => throw InvalidOtpException(),
@@ -61,8 +60,8 @@ void main() {
       expect(
         () => throw UnknownAuthException(testMessage),
         throwsA(
-          predicate((e) =>
-              e is UnknownAuthException && e.message == testMessage),
+          predicate(
+              (e) => e is UnknownAuthException && e.message == testMessage),
         ),
       );
     });

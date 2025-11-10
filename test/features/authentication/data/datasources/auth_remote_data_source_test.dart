@@ -7,8 +7,7 @@ import 'package:dyip/features/authentication/data/models/user_model.dart';
 
 class MockFirebaseAuth extends Mock implements firebase_auth.FirebaseAuth {}
 
-class MockUserCredential extends Mock implements firebase_auth.UserCredential {
-}
+class MockUserCredential extends Mock implements firebase_auth.UserCredential {}
 
 class MockUser extends Mock implements firebase_auth.User {}
 
@@ -41,14 +40,12 @@ void main() {
               verificationCompleted: any(named: 'verificationCompleted'),
               verificationFailed: any(named: 'verificationFailed'),
               codeSent: any(named: 'codeSent'),
-              codeAutoRetrievalTimeout:
-                  any(named: 'codeAutoRetrievalTimeout'),
+              codeAutoRetrievalTimeout: any(named: 'codeAutoRetrievalTimeout'),
               timeout: any(named: 'timeout'),
             )).thenAnswer((invocation) async {
           // Simulate codeSent callback
-          final codeSent =
-              invocation.namedArguments[const Symbol('codeSent')]
-                  as void Function(String, int?);
+          final codeSent = invocation.namedArguments[const Symbol('codeSent')]
+              as void Function(String, int?);
           codeSent(testVerificationId, null);
         });
 
@@ -62,8 +59,7 @@ void main() {
               verificationCompleted: any(named: 'verificationCompleted'),
               verificationFailed: any(named: 'verificationFailed'),
               codeSent: any(named: 'codeSent'),
-              codeAutoRetrievalTimeout:
-                  any(named: 'codeAutoRetrievalTimeout'),
+              codeAutoRetrievalTimeout: any(named: 'codeAutoRetrievalTimeout'),
               timeout: any(named: 'timeout'),
             )).called(1);
       });
@@ -75,14 +71,13 @@ void main() {
               verificationCompleted: any(named: 'verificationCompleted'),
               verificationFailed: any(named: 'verificationFailed'),
               codeSent: any(named: 'codeSent'),
-              codeAutoRetrievalTimeout:
-                  any(named: 'codeAutoRetrievalTimeout'),
+              codeAutoRetrievalTimeout: any(named: 'codeAutoRetrievalTimeout'),
               timeout: any(named: 'timeout'),
             )).thenAnswer((invocation) async {
           // Simulate verificationFailed callback
-          final verificationFailed = invocation
-                  .namedArguments[const Symbol('verificationFailed')]
-              as void Function(firebase_auth.FirebaseAuthException);
+          final verificationFailed =
+              invocation.namedArguments[const Symbol('verificationFailed')]
+                  as void Function(firebase_auth.FirebaseAuthException);
           verificationFailed(firebase_auth.FirebaseAuthException(
               code: 'invalid-phone-number'));
         });
@@ -94,16 +89,14 @@ void main() {
         );
       });
 
-      test('should return verification ID on auto-retrieval timeout',
-          () async {
+      test('should return verification ID on auto-retrieval timeout', () async {
         // arrange
         when(() => mockFirebaseAuth.verifyPhoneNumber(
               phoneNumber: any(named: 'phoneNumber'),
               verificationCompleted: any(named: 'verificationCompleted'),
               verificationFailed: any(named: 'verificationFailed'),
               codeSent: any(named: 'codeSent'),
-              codeAutoRetrievalTimeout:
-                  any(named: 'codeAutoRetrievalTimeout'),
+              codeAutoRetrievalTimeout: any(named: 'codeAutoRetrievalTimeout'),
               timeout: any(named: 'timeout'),
             )).thenAnswer((invocation) async {
           // Simulate codeAutoRetrievalTimeout callback (when codeSent wasn't called)
@@ -307,8 +300,7 @@ void main() {
 
         // act & assert
         expect(
-          () => dataSource.verifyOtp(
-              verificationId: 'test', otp: '123456'),
+          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(isA<InvalidPhoneNumberException>()),
         );
       });
@@ -321,8 +313,7 @@ void main() {
 
         // act & assert
         expect(
-          () => dataSource.verifyOtp(
-              verificationId: 'test', otp: '123456'),
+          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(isA<UserNotFoundException>()),
         );
       });
@@ -335,8 +326,7 @@ void main() {
 
         // act & assert
         expect(
-          () => dataSource.verifyOtp(
-              verificationId: 'test', otp: '123456'),
+          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(isA<SessionExpiredException>()),
         );
       });
@@ -350,8 +340,7 @@ void main() {
 
         // act & assert
         expect(
-          () => dataSource.verifyOtp(
-              verificationId: 'test', otp: '123456'),
+          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(isA<TooManyRequestsException>()),
         );
       });
@@ -359,14 +348,12 @@ void main() {
       test('should map network-request-failed to NetworkException', () async {
         // arrange
         when(() => mockFirebaseAuth.signInWithCredential(any())).thenThrow(
-          firebase_auth.FirebaseAuthException(
-              code: 'network-request-failed'),
+          firebase_auth.FirebaseAuthException(code: 'network-request-failed'),
         );
 
         // act & assert
         expect(
-          () => dataSource.verifyOtp(
-              verificationId: 'test', otp: '123456'),
+          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(isA<NetworkException>()),
         );
       });
@@ -382,11 +369,10 @@ void main() {
 
         // act & assert
         expect(
-          () => dataSource.verifyOtp(
-              verificationId: 'test', otp: '123456'),
+          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(
-            predicate((e) =>
-                e is UnknownAuthException && e.message == 'Test error'),
+            predicate(
+                (e) => e is UnknownAuthException && e.message == 'Test error'),
           ),
         );
       });

@@ -79,10 +79,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       InvalidPhoneNumberFailure() =>
         'Invalid phone number. Please check and try again.',
       InvalidOtpFailure() => 'Invalid OTP. Please check and try again.',
-      SessionExpiredFailure() =>
-        'Session expired. Please request a new OTP.',
-      TooManyRequestsFailure() =>
-        'Too many requests. Please try again later.',
+      SessionExpiredFailure() => 'Session expired. Please request a new OTP.',
+      TooManyRequestsFailure() => 'Too many requests. Please try again later.',
       NetworkFailure() => 'Network error. Please check your connection.',
       UserNotFoundFailure() => 'User not found.',
       UnknownAuthFailure(:final message) => message,

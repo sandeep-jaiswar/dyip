@@ -35,8 +35,7 @@ void main() {
     testWidgets('should display user information when authenticated',
         (WidgetTester tester) async {
       // arrange
-      when(() => mockAuthBloc.state)
-          .thenReturn(const Authenticated(testUser));
+      when(() => mockAuthBloc.state).thenReturn(const Authenticated(testUser));
       when(() => mockAuthBloc.stream)
           .thenAnswer((_) => Stream.value(const Authenticated(testUser)));
 
@@ -48,8 +47,7 @@ void main() {
       expect(find.text('Welcome!'), findsOneWidget);
       expect(find.text('Phone: ${testUser.phoneNumber}'), findsOneWidget);
       expect(find.text('User ID: ${testUser.uid}'), findsOneWidget);
-      expect(
-          find.text('You are successfully authenticated!'), findsOneWidget);
+      expect(find.text('You are successfully authenticated!'), findsOneWidget);
     });
 
     testWidgets('should display loading indicator when state is AuthLoading',
@@ -68,8 +66,7 @@ void main() {
 
     testWidgets('should display logout button', (WidgetTester tester) async {
       // arrange
-      when(() => mockAuthBloc.state)
-          .thenReturn(const Authenticated(testUser));
+      when(() => mockAuthBloc.state).thenReturn(const Authenticated(testUser));
       when(() => mockAuthBloc.stream)
           .thenAnswer((_) => Stream.value(const Authenticated(testUser)));
 
@@ -84,8 +81,7 @@ void main() {
     testWidgets('should show logout confirmation dialog when logout tapped',
         (WidgetTester tester) async {
       // arrange
-      when(() => mockAuthBloc.state)
-          .thenReturn(const Authenticated(testUser));
+      when(() => mockAuthBloc.state).thenReturn(const Authenticated(testUser));
       when(() => mockAuthBloc.stream)
           .thenAnswer((_) => Stream.value(const Authenticated(testUser)));
 
@@ -103,8 +99,7 @@ void main() {
     testWidgets('should cancel logout when Cancel is tapped',
         (WidgetTester tester) async {
       // arrange
-      when(() => mockAuthBloc.state)
-          .thenReturn(const Authenticated(testUser));
+      when(() => mockAuthBloc.state).thenReturn(const Authenticated(testUser));
       when(() => mockAuthBloc.stream)
           .thenAnswer((_) => Stream.value(const Authenticated(testUser)));
 
@@ -124,8 +119,7 @@ void main() {
     testWidgets('should trigger LogoutEvent when logout confirmed',
         (WidgetTester tester) async {
       // arrange
-      when(() => mockAuthBloc.state)
-          .thenReturn(const Authenticated(testUser));
+      when(() => mockAuthBloc.state).thenReturn(const Authenticated(testUser));
       when(() => mockAuthBloc.stream)
           .thenAnswer((_) => Stream.value(const Authenticated(testUser)));
       when(() => mockAuthBloc.add(any())).thenReturn(null);
@@ -162,8 +156,7 @@ void main() {
         (WidgetTester tester) async {
       // arrange
       const testErrorMessage = 'Test error message';
-      when(() => mockAuthBloc.state)
-          .thenReturn(const Authenticated(testUser));
+      when(() => mockAuthBloc.state).thenReturn(const Authenticated(testUser));
       when(() => mockAuthBloc.stream).thenAnswer(
         (_) => Stream.fromIterable([
           const Authenticated(testUser),
@@ -181,8 +174,7 @@ void main() {
 
     testWidgets('should display check icon', (WidgetTester tester) async {
       // arrange
-      when(() => mockAuthBloc.state)
-          .thenReturn(const Authenticated(testUser));
+      when(() => mockAuthBloc.state).thenReturn(const Authenticated(testUser));
       when(() => mockAuthBloc.stream)
           .thenAnswer((_) => Stream.value(const Authenticated(testUser)));
 

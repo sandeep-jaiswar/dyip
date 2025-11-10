@@ -46,8 +46,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     if (_formKey.currentState!.validate()) {
       final otp = _otpController.text.trim();
       context.read<AuthBloc>().add(
-        VerifyOtpEvent(verificationId: widget.verificationId, otp: otp),
-      );
+            VerifyOtpEvent(verificationId: widget.verificationId, otp: otp),
+          );
     }
   }
 

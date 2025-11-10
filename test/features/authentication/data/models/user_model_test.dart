@@ -30,8 +30,7 @@ void main() {
       expect(userModel, isA<User>());
     });
 
-    test('fromFirebaseUser should create UserModel from Firebase User',
-        () {
+    test('fromFirebaseUser should create UserModel from Firebase User', () {
       // arrange
       when(() => mockFirebaseUser.uid).thenReturn(testUid);
       when(() => mockFirebaseUser.phoneNumber).thenReturn(testPhoneNumber);
@@ -46,8 +45,7 @@ void main() {
       expect(result.displayName, testDisplayName);
     });
 
-    test(
-        'fromFirebaseUser should handle null phone number and display name',
+    test('fromFirebaseUser should handle null phone number and display name',
         () {
       // arrange
       when(() => mockFirebaseUser.uid).thenReturn(testUid);

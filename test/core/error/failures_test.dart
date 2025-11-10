@@ -55,8 +55,7 @@ void main() {
       expect(failure1, equals(failure2));
     });
 
-    test('UnknownAuthFailure with different messages should not be equal',
-        () {
+    test('UnknownAuthFailure with different messages should not be equal', () {
       const failure1 = UnknownAuthFailure('Message 1');
       const failure2 = UnknownAuthFailure('Message 2');
 
@@ -65,8 +64,7 @@ void main() {
 
     test('Different failure types should not be equal', () {
       expect(ServerFailure(), isNot(equals(NetworkFailure())));
-      expect(
-          InvalidPhoneNumberFailure(), isNot(equals(InvalidOtpFailure())));
+      expect(InvalidPhoneNumberFailure(), isNot(equals(InvalidOtpFailure())));
     });
   });
 }
