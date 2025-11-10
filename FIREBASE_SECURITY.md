@@ -1,8 +1,14 @@
 # Firebase Credentials Security
 
-## IMPORTANT: Credentials Removed
+## IMPORTANT: Dummy Configuration for CI/CD
 
-The `google-services.json` file has been removed from this repository for security reasons. This file contained sensitive Firebase API keys and should never be committed to version control.
+The repository includes a **dummy** `google-services.json` file in `android/app/` for CI/CD builds. This file contains placeholder values and **should NOT be used in production**.
+
+### Key Points:
+
+- ✅ The dummy file allows builds to succeed in CI/CD without real credentials
+- ⚠️ Replace with your actual Firebase configuration for production
+- 🔒 Keep your production Firebase credentials secure and never commit them
 
 ## Setup Instructions
 
@@ -11,20 +17,21 @@ The `google-services.json` file has been removed from this repository for securi
 1. Create your own Firebase project at [Firebase Console](https://console.firebase.google.com/)
 2. Enable Phone Authentication in Firebase Console > Authentication > Sign-in method
 3. Download the `google-services.json` file from Firebase Console
-4. Place it in `android/app/google-services.json`
-5. The file is automatically ignored by `.gitignore`
+4. **Replace** the dummy file at `android/app/google-services.json` with your downloaded file
+5. **Important:** Add your production file to `.gitignore` by uncommenting the ignore line
 
 ### For iOS:
 
 1. Download `GoogleService-Info.plist` from Firebase Console
 2. Add it to `ios/Runner/` directory using Xcode
-3. The file is automatically ignored by `.gitignore`
+3. Uncomment the ignore line in `.gitignore` to protect your production file
 
 ### For CI/CD:
 
 The workflow files use GitHub Secrets for Firebase configuration:
 - Set up secrets in GitHub repository settings
 - Secrets are automatically injected into `.env` file during build
+- The dummy `google-services.json` allows builds to compile
 - See `.github/workflows/pr-checks.yml` and `release.yml` for required secret names
 
 ## Security Best Practices
