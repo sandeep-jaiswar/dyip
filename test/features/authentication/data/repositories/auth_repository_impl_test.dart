@@ -7,6 +7,7 @@ import 'package:dyip/features/authentication/data/datasources/auth_remote_data_s
 import 'package:dyip/features/authentication/data/models/user_model.dart';
 import 'package:dyip/features/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:dyip/features/authentication/domain/entities/user.dart';
+import 'package:dyip/features/authentication/domain/entities/send_otp_result.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
 
@@ -29,13 +30,13 @@ void main() {
         // arrange
         when(
           () => mockRemoteDataSource.sendOtp(any()),
-        ).thenAnswer((_) async => testVerificationId);
+        ).thenAnswer((_) async => const CodeSent(testVerificationId));
 
         // act
         final result = await repository.sendOtp(testPhoneNumber);
 
         // assert
-        expect(result, const Right(testVerificationId));
+        expect(result, const Right(CodeSent(testVerificationId)));
         verify(() => mockRemoteDataSource.sendOtp(testPhoneNumber)).called(1);
       },
     );

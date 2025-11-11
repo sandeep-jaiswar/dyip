@@ -8,6 +8,7 @@ import 'package:dyip/features/authentication/domain/usecases/send_otp.dart';
 import 'package:dyip/features/authentication/domain/usecases/verify_otp.dart';
 import 'package:dyip/features/authentication/presentation/bloc/auth_event.dart';
 import 'package:dyip/features/authentication/presentation/bloc/auth_state.dart';
+import 'package:dyip/features/authentication/domain/entities/send_otp_result.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SendOtp sendOtp;
@@ -47,7 +48,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await sendOtp(SendOtpParams(event.phoneNumber));
     result.fold(
       (failure) => emit(AuthError(_mapFailureToMessage(failure))),
-      (verificationId) => emit(OtpSent(verificationId)),
+      (sendOtpResult) {
+        if (sendOtpResult is CodeSent) {
+          emit(OtpSent(sendOtpResult.verificationId));
+        } else if (sendOtpResult is Initiated) {
+          emit(OtpInitiated());
+        } else {
+          emit(AuthError('Unknown response from sendOtp'));
+        }
+      },
     );
   }
 

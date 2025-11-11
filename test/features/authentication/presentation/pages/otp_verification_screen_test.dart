@@ -50,7 +50,7 @@ void main() {
       expect(find.text('Enter Verification Code'), findsOneWidget);
       expect(find.text('We sent an OTP to $testPhoneNumber'), findsOneWidget);
       expect(find.byType(TextFormField), findsOneWidget);
-      expect(find.text('Verify OTP'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Verify OTP'), findsOneWidget);
       expect(find.text('Request New OTP'), findsOneWidget);
     });
 
@@ -90,7 +90,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.text('Verify OTP'));
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Verify OTP'));
       await tester.pump();
 
       // assert
@@ -113,7 +113,7 @@ void main() {
         ),
       );
       await tester.enterText(find.byType(TextFormField), '123');
-      await tester.tap(find.text('Verify OTP'));
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Verify OTP'));
       await tester.pump();
 
       // assert
@@ -137,7 +137,7 @@ void main() {
         ),
       );
       await tester.enterText(find.byType(TextFormField), '12a456');
-      await tester.tap(find.text('Verify OTP'));
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Verify OTP'));
       await tester.pump();
 
       // assert
@@ -162,7 +162,7 @@ void main() {
         ),
       );
       await tester.enterText(find.byType(TextFormField), '123456');
-      await tester.tap(find.text('Verify OTP'));
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Verify OTP'));
       await tester.pump();
 
       // assert
@@ -190,9 +190,10 @@ void main() {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const OtpVerificationScreen(
+                          builder: (context) => OtpVerificationScreen(
                             verificationId: testVerificationId,
                             phoneNumber: testPhoneNumber,
+                            authBloc: mockAuthBloc,
                           ),
                         ),
                       );

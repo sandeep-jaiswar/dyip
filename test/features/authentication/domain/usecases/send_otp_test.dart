@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dyip/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:dyip/features/authentication/domain/usecases/send_otp.dart';
+import 'package:dyip/features/authentication/domain/entities/send_otp_result.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
@@ -22,13 +23,13 @@ void main() {
     // arrange
     when(
       () => mockRepository.sendOtp(any()),
-    ).thenAnswer((_) async => const Right(testVerificationId));
+    ).thenAnswer((_) async => const Right(CodeSent(testVerificationId)));
 
     // act
     final result = await usecase(SendOtpParams(testPhoneNumber));
 
     // assert
-    expect(result, const Right(testVerificationId));
+    expect(result, const Right(CodeSent(testVerificationId)));
     verify(() => mockRepository.sendOtp(testPhoneNumber)).called(1);
     verifyNoMoreInteractions(mockRepository);
   });

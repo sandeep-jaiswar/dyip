@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:dyip/core/error/exceptions.dart';
 import 'package:dyip/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:dyip/features/authentication/data/models/user_model.dart';
+import 'package:dyip/features/authentication/domain/entities/send_otp_result.dart';
 
 class MockFirebaseAuth extends Mock implements firebase_auth.FirebaseAuth {}
 
@@ -14,11 +15,20 @@ class MockUser extends Mock implements firebase_auth.User {}
 class MockPhoneAuthCredential extends Mock
     implements firebase_auth.PhoneAuthCredential {}
 
+class FakeDuration extends Fake implements Duration {}
+class FakeAuthCredential extends Fake implements firebase_auth.AuthCredential {}
+
 void main() {
   late AuthRemoteDataSourceImpl dataSource;
   late MockFirebaseAuth mockFirebaseAuth;
   late MockUserCredential mockUserCredential;
   late MockUser mockUser;
+
+  setUpAll(() {
+    registerFallbackValue(FakeDuration());
+    registerFallbackValue(FakeAuthCredential());
+    registerFallbackValue(MockPhoneAuthCredential());
+  });
 
   setUp(() {
     mockFirebaseAuth = MockFirebaseAuth();
@@ -53,7 +63,8 @@ void main() {
         final result = await dataSource.sendOtp(testPhoneNumber);
 
         // assert
-        expect(result, testVerificationId);
+        expect(result, isA<CodeSent>());
+        expect((result as CodeSent).verificationId, testVerificationId);
         verify(() => mockFirebaseAuth.verifyPhoneNumber(
               phoneNumber: testPhoneNumber,
               verificationCompleted: any(named: 'verificationCompleted'),
@@ -74,17 +85,18 @@ void main() {
               codeAutoRetrievalTimeout: any(named: 'codeAutoRetrievalTimeout'),
               timeout: any(named: 'timeout'),
             )).thenAnswer((invocation) async {
-          // Simulate verificationFailed callback
+          // Simulate verificationFailed callback asynchronously to avoid
+          // unhandled sync exceptions during the mocked call.
           final verificationFailed =
               invocation.namedArguments[const Symbol('verificationFailed')]
                   as void Function(firebase_auth.FirebaseAuthException);
-          verificationFailed(firebase_auth.FirebaseAuthException(
-              code: 'invalid-phone-number'));
+          Future.microtask(() => verificationFailed(
+              firebase_auth.FirebaseAuthException(code: 'invalid-phone-number')));
         });
 
         // act & assert
-        expect(
-          () => dataSource.sendOtp(testPhoneNumber),
+        await expectLater(
+          dataSource.sendOtp(testPhoneNumber),
           throwsA(isA<InvalidPhoneNumberException>()),
         );
       });
@@ -110,7 +122,45 @@ void main() {
         final result = await dataSource.sendOtp(testPhoneNumber);
 
         // assert
-        expect(result, testVerificationId);
+        expect(result, isA<CodeSent>());
+        expect((result as CodeSent).verificationId, testVerificationId);
+      });
+
+      test('should return current user uid when auto-verification completes', () async {
+        // arrange
+        const autoUid = 'auto_verified_uid';
+        final mockCredential = MockPhoneAuthCredential();
+
+        when(() => mockFirebaseAuth.verifyPhoneNumber(
+              phoneNumber: any(named: 'phoneNumber'),
+              verificationCompleted: any(named: 'verificationCompleted'),
+              verificationFailed: any(named: 'verificationFailed'),
+              codeSent: any(named: 'codeSent'),
+              codeAutoRetrievalTimeout: any(named: 'codeAutoRetrievalTimeout'),
+              timeout: any(named: 'timeout'),
+            )).thenAnswer((invocation) async {
+          // Simulate verificationCompleted callback
+          final verificationCompleted = invocation
+                  .namedArguments[const Symbol('verificationCompleted')]
+              as void Function(firebase_auth.PhoneAuthCredential);
+
+          // Mock signInWithCredential to return a userCredential with a user
+          when(() => mockFirebaseAuth.signInWithCredential(any()))
+              .thenAnswer((_) async => mockUserCredential);
+          when(() => mockUser.uid).thenReturn(autoUid);
+          when(() => mockUser.phoneNumber).thenReturn(testPhoneNumber);
+          when(() => mockUser.displayName).thenReturn(null);
+          when(() => mockUserCredential.user).thenReturn(mockUser);
+          when(() => mockFirebaseAuth.currentUser).thenReturn(mockUser);
+
+          verificationCompleted(mockCredential);
+        });
+
+        // act
+        final result = await dataSource.sendOtp(testPhoneNumber);
+
+        // assert
+        expect(result, isA<Initiated>());
       });
     });
 
@@ -149,8 +199,8 @@ void main() {
             .thenAnswer((_) async => mockUserCredential);
 
         // act & assert
-        expect(
-          () => dataSource.verifyOtp(
+        await expectLater(
+          dataSource.verifyOtp(
             verificationId: testVerificationId,
             otp: testOtp,
           ),
@@ -168,8 +218,8 @@ void main() {
         );
 
         // act & assert
-        expect(
-          () => dataSource.verifyOtp(
+        await expectLater(
+          dataSource.verifyOtp(
             verificationId: testVerificationId,
             otp: testOtp,
           ),
@@ -185,8 +235,8 @@ void main() {
         );
 
         // act & assert
-        expect(
-          () => dataSource.verifyOtp(
+        await expectLater(
+          dataSource.verifyOtp(
             verificationId: testVerificationId,
             otp: testOtp,
           ),
@@ -215,7 +265,7 @@ void main() {
         );
 
         // act & assert
-        expect(() => dataSource.logout(), throwsA(isA<UnknownAuthException>()));
+        await expectLater(() => dataSource.logout(), throwsA(isA<UnknownAuthException>()));
       });
     });
 
@@ -255,7 +305,7 @@ void main() {
         when(() => mockFirebaseAuth.currentUser).thenThrow(Exception('Error'));
 
         // act & assert
-        expect(() => dataSource.getCurrentUser(),
+        await expectLater(() => dataSource.getCurrentUser(),
             throwsA(isA<UnknownAuthException>()));
       });
     });
@@ -299,8 +349,8 @@ void main() {
         );
 
         // act & assert
-        expect(
-          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
+        await expectLater(
+          dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(isA<InvalidPhoneNumberException>()),
         );
       });
@@ -312,8 +362,8 @@ void main() {
         );
 
         // act & assert
-        expect(
-          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
+        await expectLater(
+          dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(isA<UserNotFoundException>()),
         );
       });
@@ -325,8 +375,8 @@ void main() {
         );
 
         // act & assert
-        expect(
-          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
+        await expectLater(
+          dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(isA<SessionExpiredException>()),
         );
       });
@@ -339,8 +389,8 @@ void main() {
         );
 
         // act & assert
-        expect(
-          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
+        await expectLater(
+          dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(isA<TooManyRequestsException>()),
         );
       });
@@ -352,8 +402,8 @@ void main() {
         );
 
         // act & assert
-        expect(
-          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
+        await expectLater(
+          dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(isA<NetworkException>()),
         );
       });
@@ -368,8 +418,8 @@ void main() {
         );
 
         // act & assert
-        expect(
-          () => dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
+        await expectLater(
+          dataSource.verifyOtp(verificationId: 'test', otp: '123456'),
           throwsA(
             predicate(
                 (e) => e is UnknownAuthException && e.message == 'Test error'),

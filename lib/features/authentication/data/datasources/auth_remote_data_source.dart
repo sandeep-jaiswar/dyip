@@ -2,11 +2,12 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:dyip/core/error/exceptions.dart';
 import 'package:dyip/features/authentication/data/models/user_model.dart';
+import 'package:dyip/features/authentication/domain/entities/send_otp_result.dart';
 
 abstract class AuthRemoteDataSource {
   /// Send OTP to the given phone number
-  /// Returns verification ID for OTP verification
-  Future<String> sendOtp(String phoneNumber);
+  /// Returns either CodeSent(verificationId) when codeSent, or Initiated when verification started (non-blocking).
+  Future<SendOtpResult> sendOtp(String phoneNumber);
 
   /// Verify the OTP with the verification ID
   /// Returns the authenticated user
@@ -31,10 +32,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({required this.firebaseAuth});
 
   @override
-  Future<String> sendOtp(String phoneNumber) async {
+  Future<SendOtpResult> sendOtp(String phoneNumber) async {
     try {
-      final completer = Completer<String>();
-      Exception? error;
+      final completer = Completer<SendOtpResult>();
 
       await firebaseAuth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
@@ -42,41 +42,47 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             (firebase_auth.PhoneAuthCredential credential) async {
           // Auto-verification completed - sign in automatically
           try {
+            // sign in but do not return AutoVerified; rely on authStateChanges
             await firebaseAuth.signInWithCredential(credential);
             if (!completer.isCompleted) {
-              completer.completeError(
-                UnknownAuthException(
-                    'Auto-verification completed. Please check your auth state.'),
-              );
+              completer.complete(const Initiated());
+            }
+          } on firebase_auth.FirebaseAuthException catch (e) {
+            if (!completer.isCompleted) {
+              completer.completeError(_mapFirebaseException(e));
             }
           } catch (e) {
             if (!completer.isCompleted) {
-              completer.completeError(_mapFirebaseException(
-                  e as firebase_auth.FirebaseAuthException));
+              completer.completeError(UnknownAuthException(e.toString()));
             }
           }
         },
         verificationFailed: (firebase_auth.FirebaseAuthException e) {
-          error = _mapFirebaseException(e);
+          final mapped = _mapFirebaseException(e);
           if (!completer.isCompleted) {
-            completer.completeError(error!);
+            completer.completeError(mapped);
           }
         },
         codeSent: (String verId, int? resendToken) {
           if (!completer.isCompleted) {
-            completer.complete(verId);
+            completer.complete(CodeSent(verId));
           }
         },
         codeAutoRetrievalTimeout: (String verId) {
           // Timeout - but we should have gotten codeSent already
           if (!completer.isCompleted) {
-            completer.complete(verId);
+            completer.complete(CodeSent(verId));
           }
         },
         timeout: const Duration(seconds: 60),
       );
 
-      return await completer.future;
+      // if verifyPhoneNumber returns immediately without calling callbacks,
+      // ensure we at least return an Initiated to signal the flow started.
+      return completer.future.timeout(const Duration(seconds: 65), onTimeout: () {
+        if (!completer.isCompleted) completer.complete(const Initiated());
+        return const Initiated();
+      });
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw _mapFirebaseException(e);
     } catch (e) {
@@ -101,6 +107,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       if (userCredential.user == null) {
+        // Throw UserNotFoundException directly so callers/tests can catch it.
         throw UserNotFoundException();
       }
 
@@ -108,6 +115,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw _mapFirebaseException(e);
     } catch (e) {
+      if (e is UserNotFoundException) rethrow;
       throw UnknownAuthException(e.toString());
     }
   }

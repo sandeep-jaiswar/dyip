@@ -21,6 +21,8 @@ class OtpSent extends AuthState {
   List<Object> get props => [verificationId];
 }
 
+class OtpInitiated extends AuthState {}
+
 class Authenticated extends AuthState {
   final User user;
 

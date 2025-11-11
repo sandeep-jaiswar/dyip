@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:dyip/core/error/failures.dart';
 import 'package:dyip/core/usecases/usecase.dart';
 import 'package:dyip/features/authentication/domain/entities/user.dart';
+import 'package:dyip/features/authentication/domain/entities/send_otp_result.dart';
 import 'package:dyip/features/authentication/domain/usecases/get_current_user.dart';
 import 'package:dyip/features/authentication/domain/usecases/logout.dart';
 import 'package:dyip/features/authentication/domain/usecases/send_otp.dart';
@@ -89,11 +90,21 @@ void main() {
       build: () {
         when(
           () => mockSendOtp(any()),
-        ).thenAnswer((_) async => const Right(testVerificationId));
+        ).thenAnswer((_) async => Right(CodeSent(testVerificationId)));
         return bloc;
       },
       act: (bloc) => bloc.add(const SendOtpEvent(testPhoneNumber)),
       expect: () => [AuthLoading(), const OtpSent(testVerificationId)],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'emits [AuthLoading, OtpInitiated] when sendOtp initiates without codeSent',
+      build: () {
+        when(() => mockSendOtp(any())).thenAnswer((_) async => Right(const Initiated()));
+        return bloc;
+      },
+      act: (bloc) => bloc.add(const SendOtpEvent(testPhoneNumber)),
+      expect: () => [AuthLoading(), OtpInitiated()],
     );
 
     blocTest<AuthBloc, AuthState>(

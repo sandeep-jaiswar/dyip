@@ -3,6 +3,7 @@ import 'package:dyip/core/error/exceptions.dart';
 import 'package:dyip/core/error/failures.dart';
 import 'package:dyip/features/authentication/data/datasources/auth_remote_data_source.dart';
 import 'package:dyip/features/authentication/domain/entities/user.dart';
+import 'package:dyip/features/authentication/domain/entities/send_otp_result.dart';
 import 'package:dyip/features/authentication/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -11,10 +12,10 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, String>> sendOtp(String phoneNumber) async {
+  Future<Either<Failure, SendOtpResult>> sendOtp(String phoneNumber) async {
     try {
-      final verificationId = await remoteDataSource.sendOtp(phoneNumber);
-      return Right(verificationId);
+      final result = await remoteDataSource.sendOtp(phoneNumber);
+      return Right(result);
     } on InvalidPhoneNumberException {
       return Left(InvalidPhoneNumberFailure());
     } on NetworkException {
