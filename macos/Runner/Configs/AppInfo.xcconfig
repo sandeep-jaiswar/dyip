@@ -8,7 +8,7 @@
 PRODUCT_NAME = dyip
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.dyip
+PRODUCT_BUNDLE_IDENTIFIER = com.jspl.dyip
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 com.jspl. All rights reserved.

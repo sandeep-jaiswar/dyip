@@ -53,6 +53,15 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
       
+      - name: Create test environment file
+        run: |
+          # Create a minimal .env file for testing
+          # Tests don't need real Firebase credentials
+          echo "FIREBASE_PROJECT_ID=test-project" > .env
+          echo "FIREBASE_API_KEY_ANDROID=test-key" >> .env
+          echo "FIREBASE_APP_ID_ANDROID=1:123:android:test" >> .env
+          echo "FIREBASE_MESSAGING_SENDER_ID=123" >> .env
+      
       - name: Verify Flutter installation
         run: |
           flutter --version
@@ -114,7 +123,6 @@ jobs:
           channel: 'stable'
           cache: true
           cache-key: flutter-stable-${{ hashFiles('**/pubspec.lock') }}
-      
       - name: Cache pub dependencies
         uses: actions/cache@v4
         with:
@@ -124,7 +132,6 @@ jobs:
           key: pub-${{ runner.os }}-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
             pub-${{ runner.os }}-
-      
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
         with:
@@ -135,45 +142,44 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}-
-      
       - name: Get Flutter dependencies
         run: flutter pub get
-      
+      - name: Create production environment file
+        run: |
+          # Create a minimal .env file for building
+          # Uses default test values since we don't have production secrets in CI
+          echo "FIREBASE_PROJECT_ID=test-project" > .env
+          echo "FIREBASE_API_KEY_ANDROID=test-key" >> .env
+          echo "FIREBASE_APP_ID_ANDROID=1:123:android:test" >> .env
+          echo "FIREBASE_MESSAGING_SENDER_ID=123" >> .env
       - name: Build Android APK (Debug)
         run: flutter build apk --debug --split-per-abi
-      
       - name: Build Android APK (Release)
         run: flutter build apk --release --split-per-abi
-      
       - name: Validate build outputs
         run: |
           echo "=== Debug APKs ==="
           ls -lh build/app/outputs/flutter-apk/*debug*.apk || echo "No debug APKs found"
-          
           echo "=== Release APKs ==="
           ls -lh build/app/outputs/flutter-apk/*release*.apk || echo "No release APKs found"
-          
           echo "=== Checking APK sizes ==="
           for apk in build/app/outputs/flutter-apk/*.apk; do
             if [ -f "$apk" ]; then
               size=$(stat -c%s "$apk")
               size_mb=$((size / 1048576))
               echo "$(basename $apk): ${size_mb}MB"
-              
               # Warn if APK is larger than 50MB
               if [ $size_mb -gt 50 ]; then
                 echo "::warning::APK $(basename $apk) is larger than 50MB"
               fi
             fi
           done
-      
       - name: Upload Debug APKs
         uses: actions/upload-artifact@v5
         with:
           name: android-debug-apks
           path: build/app/outputs/flutter-apk/*debug*.apk
           retention-days: 7
-      
       - name: Upload Release APKs
         uses: actions/upload-artifact@v5
         with:
@@ -226,10 +232,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [code-quality, build-android]
     if: always()
-    
     permissions:
       contents: read
-    
     steps:
       - name: Check workflow status
         run: |
@@ -238,7 +242,6 @@ jobs:
           echo "- Code Quality: ${{ needs.code-quality.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Android Build: ${{ needs.build-android.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
           if [ "${{ needs.code-quality.result }}" == "success" ] && [ "${{ needs.build-android.result }}" == "success" ]; then
             echo "✅ All checks passed!" >> $GITHUB_STEP_SUMMARY
             exit 0
