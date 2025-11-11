@@ -79,7 +79,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       // if verifyPhoneNumber returns immediately without calling callbacks,
       // ensure we at least return an Initiated to signal the flow started.
-      return completer.future.timeout(const Duration(seconds: 65), onTimeout: () {
+      return completer.future.timeout(const Duration(seconds: 65),
+          onTimeout: () {
         if (!completer.isCompleted) completer.complete(const Initiated());
         return const Initiated();
       });

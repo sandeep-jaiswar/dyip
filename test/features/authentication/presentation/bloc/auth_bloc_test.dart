@@ -100,7 +100,8 @@ void main() {
     blocTest<AuthBloc, AuthState>(
       'emits [AuthLoading, OtpInitiated] when sendOtp initiates without codeSent',
       build: () {
-        when(() => mockSendOtp(any())).thenAnswer((_) async => Right(const Initiated()));
+        when(() => mockSendOtp(any()))
+            .thenAnswer((_) async => Right(const Initiated()));
         return bloc;
       },
       act: (bloc) => bloc.add(const SendOtpEvent(testPhoneNumber)),

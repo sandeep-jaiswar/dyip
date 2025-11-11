@@ -16,6 +16,7 @@ class MockPhoneAuthCredential extends Mock
     implements firebase_auth.PhoneAuthCredential {}
 
 class FakeDuration extends Fake implements Duration {}
+
 class FakeAuthCredential extends Fake implements firebase_auth.AuthCredential {}
 
 void main() {
@@ -91,7 +92,8 @@ void main() {
               invocation.namedArguments[const Symbol('verificationFailed')]
                   as void Function(firebase_auth.FirebaseAuthException);
           Future.microtask(() => verificationFailed(
-              firebase_auth.FirebaseAuthException(code: 'invalid-phone-number')));
+              firebase_auth.FirebaseAuthException(
+                  code: 'invalid-phone-number')));
         });
 
         // act & assert
@@ -126,7 +128,8 @@ void main() {
         expect((result as CodeSent).verificationId, testVerificationId);
       });
 
-      test('should return current user uid when auto-verification completes', () async {
+      test('should return current user uid when auto-verification completes',
+          () async {
         // arrange
         const autoUid = 'auto_verified_uid';
         final mockCredential = MockPhoneAuthCredential();
@@ -140,9 +143,9 @@ void main() {
               timeout: any(named: 'timeout'),
             )).thenAnswer((invocation) async {
           // Simulate verificationCompleted callback
-          final verificationCompleted = invocation
-                  .namedArguments[const Symbol('verificationCompleted')]
-              as void Function(firebase_auth.PhoneAuthCredential);
+          final verificationCompleted =
+              invocation.namedArguments[const Symbol('verificationCompleted')]
+                  as void Function(firebase_auth.PhoneAuthCredential);
 
           // Mock signInWithCredential to return a userCredential with a user
           when(() => mockFirebaseAuth.signInWithCredential(any()))
@@ -265,7 +268,8 @@ void main() {
         );
 
         // act & assert
-        await expectLater(() => dataSource.logout(), throwsA(isA<UnknownAuthException>()));
+        await expectLater(
+            () => dataSource.logout(), throwsA(isA<UnknownAuthException>()));
       });
     });
 

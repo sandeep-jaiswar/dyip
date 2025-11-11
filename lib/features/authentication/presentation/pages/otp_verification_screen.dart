@@ -155,10 +155,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('OTP Verification')),
-      body: widget.authBloc != null ? BlocProvider<AuthBloc>.value(
-        value: widget.authBloc!,
-        child: body,
-      ) : body,
+      body: widget.authBloc != null
+          ? BlocProvider<AuthBloc>.value(
+              value: widget.authBloc!,
+              child: body,
+            )
+          : body,
     );
   }
 }
