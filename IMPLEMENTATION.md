@@ -27,15 +27,15 @@ The implementation follows **Clean Architecture** with three distinct layers:
 ### Dependencies Added
 ```yaml
 dependencies:
-  firebase_core: ^3.10.0      # Firebase initialization
-  firebase_auth: ^5.4.1       # Firebase Authentication
-  flutter_bloc: ^8.1.6        # State management
+  firebase_core: ^4.2.1       # Firebase initialization
+  firebase_auth: ^6.1.2       # Firebase Authentication
+  flutter_bloc: ^9.1.1        # State management
   equatable: ^2.0.7           # Value equality
   dartz: ^0.10.1              # Functional programming (Either)
 
 dev_dependencies:
-  bloc_test: ^9.1.7           # BLoC testing utilities
-  mocktail: ^1.0.5            # Mocking for tests
+  bloc_test: ^10.0.0          # BLoC testing utilities
+  mocktail: ^1.0.4            # Mocking for tests
 ```
 
 ### File Structure

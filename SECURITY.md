@@ -65,7 +65,7 @@ This document outlines the security measures and considerations implemented in t
    - HTTPS communication with Firebase
    - No custom network code
    - Firebase handles all network security
-   - Certificate pinning by Firebase SDK
+   - Transport security via standard TLS certificate validation
 
 ### ✅ Code Security
 
