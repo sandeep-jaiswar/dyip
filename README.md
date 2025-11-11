@@ -125,7 +125,7 @@ flutter run
 
 - **Testing:**
   - Use Firebase Console to add test phone numbers for development
-  - Format: +[country code][number], e.g., +1234567890
+  - Format: `+[country code][number]`, e.g., `+1234567890`
 
 - **iOS Additional Setup:**
   - Enable Push Notifications capability in Xcode
