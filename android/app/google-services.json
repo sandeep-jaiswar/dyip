@@ -1,0 +1,30 @@
+{
+  "_comment": "This is a dummy google-services.json file for CI/CD builds. DO NOT use in production. Replace with your actual Firebase configuration from Firebase Console.",
+  "project_info": {
+    "project_number": "123456789",
+    "project_id": "test-project",
+    "storage_bucket": "test-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123456789:android:abcdef1234567890",
+        "android_client_info": {
+          "package_name": "com.jspl.dyip"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDummyKeyForTestingPurposesOnly123456"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

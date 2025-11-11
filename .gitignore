@@ -43,3 +43,17 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase configuration (should be generated via FlutterFire CLI)
+# Uncomment the line below to ignore firebase_options.dart if using environment-specific configs
+# /lib/firebase_options.dart
+
+# Firebase project files - Production credentials should be added to .gitignore
+# The dummy google-services.json in the repo is for CI/CD builds only
+# Uncomment below lines to ignore your production Firebase config files:
+# /android/app/google-services.json
+# /ios/Runner/GoogleService-Info.plist
+
+# Environment variables (contains sensitive data)
+.env
+

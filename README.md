@@ -14,6 +14,9 @@ A new Flutter project with production-grade CI/CD pipeline.
 - 🚀 Automated release builds and deployment
 - 📊 Code coverage tracking with Codecov and Coveralls
 - 🔄 Automated dependency updates with Dependabot
+- 🔐 Phone number authentication with Firebase (OTP-based)
+- 🏛️ Clean Architecture with BLoC pattern
+- ✅ Comprehensive unit and widget tests
 
 ## CI/CD Pipeline
 
@@ -48,6 +51,8 @@ This project uses GitHub Actions for continuous integration and deployment:
 - Flutter SDK (3.9.2 or higher)
 - Dart SDK (included with Flutter)
 - Android Studio / VS Code with Flutter extensions
+- Firebase project (for authentication)
+- FlutterFire CLI (`dart pub global activate flutterfire_cli`)
 
 ### Installation
 
@@ -62,10 +67,69 @@ cd dyip
 flutter pub get
 ```
 
-3. Run the app:
+3. **Configure Firebase** (Required for phone authentication):
+
+   a. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   
+   b. Enable Phone Authentication:
+      - Go to Firebase Console → Authentication → Sign-in method
+      - Enable "Phone" provider
+      - Add your test phone numbers if needed for development
+   
+   c. Install FlutterFire CLI:
+   ```bash
+   dart pub global activate flutterfire_cli
+   ```
+   
+   d. Configure Firebase for your Flutter project:
+   ```bash
+   flutterfire configure
+   ```
+   This will:
+   - Create a Firebase project or select existing one
+   - Register your Flutter apps (iOS/Android)
+   - Generate Firebase configuration files
+   
+   e. **Set up environment variables** (for sensitive configuration):
+      - Copy `.env.example` to `.env`
+      ```bash
+      cp .env.example .env
+      ```
+      - Fill in your Firebase credentials from Firebase Console
+      - The `.env` file is gitignored and won't be committed
+      - For CI/CD, configure secrets in GitHub repository settings
+   
+   f. For Android, download `google-services.json`:
+      - Go to Firebase Console → Project Settings → Your Android App
+      - Download `google-services.json`
+      - Place it in `android/app/` directory
+   
+   g. For iOS, download `GoogleService-Info.plist`:
+      - Go to Firebase Console → Project Settings → Your iOS App
+      - Download `GoogleService-Info.plist`
+      - Place it in `ios/Runner/` directory using Xcode
+
+4. Run the app:
 ```bash
 flutter run
 ```
+
+**Note for Testing/CI:** The app will work without a `.env` file using default test values. For production deployment, ensure proper Firebase credentials are configured via environment variables.
+
+### Firebase Setup Notes
+
+- **Phone Authentication Requirements:**
+  - For production, you need to add SHA-1 and SHA-256 fingerprints to Firebase Console
+  - Generate them with: `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`
+  - Add fingerprints in Firebase Console → Project Settings → Your Android App
+
+- **Testing:**
+  - Use Firebase Console to add test phone numbers for development
+  - Format: +[country code][number], e.g., +1234567890
+
+- **iOS Additional Setup:**
+  - Enable Push Notifications capability in Xcode
+  - Add your APNs key in Firebase Console for production
 
 ### Development
 
@@ -118,11 +182,68 @@ dyip/
 │   └── dependabot.yml     # Automated dependency updates
 ├── android/               # Android-specific code
 ├── ios/                   # iOS-specific code
-├── lib/                   # Application source code
+├── lib/
+│   ├── core/              # Core utilities and base classes
+│   │   ├── error/         # Error handling (failures, exceptions)
+│   │   └── usecases/      # Base use case classes
+│   ├── features/
+│   │   └── authentication/    # Phone authentication feature
+│   │       ├── domain/        # Business logic layer
+│   │       │   ├── entities/  # Domain entities (User)
+│   │       │   ├── repositories/  # Repository interfaces
+│   │       │   └── usecases/  # Use cases (SendOtp, VerifyOtp, etc.)
+│   │       ├── data/          # Data layer
+│   │       │   ├── datasources/   # Remote data sources (Firebase)
+│   │       │   ├── models/        # Data models
+│   │       │   └── repositories/  # Repository implementations
+│   │       └── presentation/  # Presentation layer
+│   │           ├── bloc/      # BLoC (events, states, bloc)
+│   │           ├── pages/     # UI screens
+│   │           └── widgets/   # Reusable widgets
+│   ├── injection.dart     # Dependency injection setup
+│   ├── firebase_options.dart  # Firebase configuration
+│   └── main.dart          # App entry point
 ├── test/                  # Test files
 ├── pubspec.yaml          # Project dependencies
 └── README.md             # This file
 ```
+
+## Architecture
+
+This project follows **Clean Architecture** principles with **BLoC** (Business Logic Component) pattern for state management.
+
+### Layers
+
+1. **Domain Layer** (innermost layer)
+   - Contains business entities and business rules
+   - Defines repository interfaces
+   - Implements use cases
+   - No dependencies on external frameworks
+
+2. **Data Layer**
+   - Implements repository interfaces defined in domain layer
+   - Handles data from external sources (Firebase)
+   - Maps data models to domain entities
+   - Handles exceptions and converts them to failures
+
+3. **Presentation Layer** (outermost layer)
+   - Contains UI components (screens, widgets)
+   - Uses BLoC for state management
+   - Reacts to state changes and triggers events
+   - Depends only on domain layer through BLoC
+
+### Authentication Flow
+
+1. User enters phone number → `SendOtpEvent`
+2. BLoC calls `SendOtp` use case
+3. Repository calls Firebase to send OTP
+4. On success, BLoC emits `OtpSent` state
+5. User enters OTP → `VerifyOtpEvent`
+6. BLoC calls `VerifyOtp` use case
+7. Repository verifies OTP with Firebase
+8. On success, BLoC emits `Authenticated` state
+9. User navigates to home screen
+10. User can logout → `LogoutEvent` → `Unauthenticated` state
 
 ## Contributing
 
