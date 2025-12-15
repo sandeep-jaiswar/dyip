@@ -175,13 +175,13 @@ jobs:
             fi
           done
       - name: Upload Debug APKs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: android-debug-apks
           path: build/app/outputs/flutter-apk/*debug*.apk
           retention-days: 7
       - name: Upload Release APKs
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: android-release-apks
           path: build/app/outputs/flutter-apk/*release*.apk
@@ -220,7 +220,7 @@ jobs:
   #         tar -czf ios-build.tar.gz Runner.app
   #     
   #     - name: Upload iOS build
-  #       uses: actions/upload-artifact@v5
+  #       uses: actions/upload-artifact@v6
   #       with:
   #         name: ios-build
   #         path: build/ios/iphoneos/ios-build.tar.gz
