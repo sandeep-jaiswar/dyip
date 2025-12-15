@@ -41,7 +41,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter-${{ matrix.flutter-channel }}
       
       - name: Cache pub dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ env.PUB_CACHE }}
@@ -124,7 +124,7 @@ jobs:
           cache: true
           cache-key: flutter-stable-${{ hashFiles('**/pubspec.lock') }}
       - name: Cache pub dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ env.PUB_CACHE }}
@@ -133,7 +133,7 @@ jobs:
           restore-keys: |
             pub-${{ runner.os }}-
       - name: Cache Gradle dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
